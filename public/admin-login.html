@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion Admin</title>
+</head>
+<body>
+  <h2>Connexion Admin</h2>
+  <form id="adminLoginForm">
+    <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <button type="submit">Se connecter</button>
+  </form>
+  <div id="error" style="color:red;"></div>
+  <script>
+    document.getElementById('adminLoginForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const username = this.username.value;
+      const password = this.password.value;
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+      });
+      if (res.ok) {
+        window.location.href = '/admin';
+      } else {
+        document.getElementById('error').textContent = "Identifiants incorrects";
+      }
+    }
+  </script>
+</body>
+</html> 
