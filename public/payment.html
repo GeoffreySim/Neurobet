@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Paiement - NeuroBet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { background: #101926; color: #eafcff; font-family: Montserrat, Arial, sans-serif; }
+    .container { max-width: 700px; margin: 40px auto; background: #18263a; border-radius: 18px; padding: 32px 24px; }
+    h2 { text-align: center; color: #2de1c2; margin-bottom: 32px; }
+    .abo-cards-choice { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+    .abo-card-choice { background: #22304a; border-radius: 18px; padding: 28px 12px 22px 12px; cursor: pointer; min-width: 0; min-height: 120px; text-align: center; font-size: 1.1em; font-weight: 700; color: #eafcff; border: 2px solid transparent; transition: border 0.2s, color 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; max-width: 200px; }
+    .abo-card-choice.active, .abo-card-choice:hover { border: 2px solid #2de1c2; color: #2de1c2; box-shadow: 0 4px 20px rgba(45,225,194,0.13); }
+    .abo-card-price { font-size: 2em; color: #7ffb72; }
+    .btn-nav { background: linear-gradient(135deg, #2de1c2 0%, #1a8f7d 100%); color: #101926; border: none; border-radius: 8px; padding: 14px 0; width: 100%; font-weight: 700; font-size: 1.15em; cursor: pointer; margin-top: 18px; transition: background 0.2s, color 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(45,225,194,0.13); text-decoration: none; }
+    .btn-nav:hover { background: #7ffb72; color: #101926; }
+    @media (max-width: 700px) { .container { max-width: 98vw; padding: 18px 2vw; } .abo-cards-choice { flex-direction: column; gap: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Paiement de l'abonnement</h2>
+    <div class="abo-cards-choice">
+      <div class="abo-card-row">
+        <div class="abo-card-choice active" id="weekly-subscription">
+          <h3>Hebdomadaire</h3>
+          <div class="abo-card-price" id="weekly-price">9€</div>
+          <p>Idéal pour tester</p>
+        </div>
+        <div class="abo-card-choice" id="monthly-subscription">
+          <h3>Mensuel</h3>
+          <div class="abo-card-price" id="monthly-price">29€</div>
+          <p>Notre formule la plus populaire</p>
+        </div>
+      </div>
+      <div class="abo-card-row">
+        <div class="abo-card-choice" id="yearly-subscription">
+          <h3>Annuel</h3>
+          <div class="abo-card-price" id="yearly-price">299€</div>
+          <p>Économisez 2 mois</p>
+        </div>
+        <div class="abo-card-choice" id="lifetime-subscription">
+          <h3>À vie</h3>
+          <div class="abo-card-price" id="lifetime-price">499€</div>
+          <p>Accès illimité</p>
+        </div>
+      </div>
+    </div>
+    <div class="pay-cards-choice" style="margin-top:32px;">
+      <div class="pay-card-choice" data-paymode="card">Carte bancaire</div>
+      <div class="pay-card-choice" data-paymode="paypal">PayPal</div>
+      <div class="pay-card-choice" data-paymode="crypto">Crypto</div>
+    </div>
+    <div id="stripe-pay-section" style="display:none;text-align:center;margin-top:24px;">
+      <button id="stripe-pay-btn" class="btn-nav" style="min-width:220px;">Payer</button>
+    </div>
+    <div id="paypal-pay-section" style="display:none;text-align:center;margin-top:24px;">
+      <div id="paypal-button-container"></div>
+    </div>
+    <div id="crypto-pay-section" style="display:none;text-align:center;margin-top:24px;">
+      <button id="crypto-pay-btn" class="btn-nav" style="min-width:220px;">Payer en crypto</button>
+    </div>
+  </div>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AXek_EjSvq8-7UkiSJ0gh1LDur8vN8ftI5FfC1GHnGKj8g6BqO0xRpTJ80OINKHrS0_33xrMCNqSBeFP&currency=EUR"></script>
+  <script src="js/payment-choice.js"></script>
+</body>
+</html>

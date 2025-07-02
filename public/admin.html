@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroBet - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-pro">
+  <div class="dashboard-pro-main">
+    <div class="dashboard-header">
+      <div class="dashboard-header-content">
+        <img src="logo.png" alt="NeuroBet" class="dashboard-header-logo">
+        <div class="dashboard-header-title">NeuroBet Admin</div>
+      </div>
+    </div>
+    
+    <div class="sidebar-pro">
+      <ul class="sidebar-menu-pro">
+        <li class="sidebar-link active" data-section="new-prono">
+          <span class="sidebar-icon">➕</span>
+          <span class="sidebar-label">Nouveau prono</span>
+        </li>
+        <li class="sidebar-link" data-section="manage-pronos">
+          <span class="sidebar-icon">📊</span>
+          <span class="sidebar-label">Gérer les pronos</span>
+        </li>
+        <li class="sidebar-link" data-section="stats">
+          <span class="sidebar-icon">📈</span>
+          <span class="sidebar-label">Statistiques</span>
+        </li>
+        <li class="sidebar-link" data-section="clients">
+          <span class="sidebar-icon">👥</span>
+          <span class="sidebar-label">Clients</span>
+        </li>
+        <li class="sidebar-link" data-section="analyse">
+          <span class="sidebar-icon">📊</span>
+          <span class="sidebar-label">Analyse</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dashboard-center">
+      <!-- Section Nouveau Prono -->
+      <section class="pro-card" id="section-new-prono" style="display:block;">
+        <h3><span class="prono-icon">➕</span> Nouveau pronostic</h3>
+        <div class="admin-section">
+          <h2>Nouveau prono</h2>
+          <form id="newPronoForm" class="admin-form">
+            <div class="form-group">
+              <label for="pronoCategory">Catégorie</label>
+              <select id="pronoCategory" required>
+                <option value="football">Football</option>
+                <option value="basketball">Basketball</option>
+                <option value="tennis">Tennis</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pronoImage">Capture d'écran</label>
+              <input type="file" id="pronoImage" accept="image/*" required>
+              <div id="imagePreview" class="image-preview"></div>
+            </div>
+            <div class="form-group">
+              <label for="pronoPostDate">Date de poste</label>
+              <input type="date" id="pronoPostDate" required>
+            </div>
+            <button type="submit" class="btn-prono">Publier le pronostic</button>
+          </form>
+        </div>
+
+        <div class="admin-section">
+          <div id="parisList" class="paris-list"></div>
+        </div>
+      </section>
+
+      <!-- Section Gérer les Pronos -->
+      <section class="pro-card" id="section-manage-pronos" style="display:none;">
+        <h3><span class="prono-icon">📊</span> Gérer les pronostics</h3>
+        <div class="prono-table-container">
+          <table class="prono-table">
+            <thead>
+              <tr>
+                <th>Catégorie</th>
+                <th>Capture d'écran</th>
+                <th>Statut</th>
+                <th>Suivi</th>
+                <th>Non suivi</th>
+                <th>Supprimer</th>
+              </tr>
+            </thead>
+            <tbody id="pronoTableBody">
+              <!-- Les pronos seront ajoutés ici dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Modal aperçu image -->
+      <div id="modalImagePreview" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(16,25,38,0.85);z-index:9999;align-items:center;justify-content:center;">
+        <span id="closeModalImage" style="position:absolute;top:24px;right:40px;font-size:3em;color:#ff4d4d;cursor:pointer;font-weight:bold;">&times;</span>
+        <img id="modalImage" src="" alt="Aperçu" style="max-width:90vw;max-height:90vh;border-radius:18px;box-shadow:0 8px 32px rgba(45,225,194,0.13);">
+      </div>
+
+      <!-- Section Statistiques -->
+      <section class="pro-card" id="section-stats" style="display:none;">
+        <h3><span class="prono-icon">📈</span> Statistiques</h3>
+        <div class="stats-grid">
+          <div class="stats-card">
+            <h4>Performance globale</h4>
+            <div class="stats-value" id="global-performance">78%</div>
+            <div class="stats-label">Taux de réussite</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Basket</h4>
+            <div class="stats-value" id="basket-performance">0%</div>
+            <div class="stats-label">Taux de réussite Basket</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Foot</h4>
+            <div class="stats-value" id="foot-performance">0%</div>
+            <div class="stats-label">Taux de réussite Foot</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Tennis</h4>
+            <div class="stats-value" id="tennis-performance">0%</div>
+            <div class="stats-label">Taux de réussite Tennis</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Clients -->
+      <section class="pro-card" id="section-clients" style="display:none;">
+        <h3><span class="prono-icon">👥</span> Clients inscrits</h3>
+        <div class="clients-list-container">
+          <table class="prono-table">
+            <thead>
+              <tr>
+                <th>Pseudo</th>
+                <th>Email</th>
+                <th>Durée abonnement</th>
+                <th>Prix payé</th>
+                <th>Moyen de paiement</th>
+                <th>Supprimer</th>
+              </tr>
+            </thead>
+            <tbody id="clientsTableBody">
+              <!-- Les clients seront ajoutés ici dynamiquement -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section Analyse -->
+      <section class="pro-card" id="section-analyse" style="display:none;">
+        <h3><span class="prono-icon">📊</span> Analyse</h3>
+        <div class="admin-stats">
+          <div class="admin-stat-card">
+            <h3>Clients inscrits</h3>
+            <p id="total-clients">0</p>
+          </div>
+          <div class="admin-stat-card">
+            <h3>Revenus totaux</h3>
+            <p id="total-revenue">0€</p>
+          </div>
+        </div>
+        <div class="admin-charts">
+          <div class="admin-chart-container">
+            <h4>Statistiques de durée d'abonnement</h4>
+            <canvas id="chart-duration"></canvas>
+          </div>
+          <div class="admin-chart-container">
+            <h4>Moyen de paiement utilisé</h4>
+            <canvas id="chart-payment"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <div id="section-dashboard" class="admin-section">
+      </div>
+    </div>
+  </div>
+  <script src="admin.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <style>
+    .image-preview {
+      margin-top: 10px;
+      max-width: 300px;
+      max-height: 200px;
+      overflow: hidden;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-prono {
+      background: linear-gradient(135deg, #2de1c2 0%, #1a8f7d 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(45, 225, 194, 0.2);
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn-prono:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(45, 225, 194, 0.3);
+      background: linear-gradient(135deg, #33f1d2 0%, #1f9f8d 100%);
+    }
+
+    .btn-prono:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(45, 225, 194, 0.2);
+    }
+
+    #section-clients .prono-table th,
+    #section-clients .prono-table td {
+      min-width: 120px;
+      max-width: 180px;
+      width: 1%;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Réduction de la largeur de la colonne Statut dans la gestion des pronos */
+    #section-manage-pronos .prono-table th,
+    #section-manage-pronos .prono-table td {
+      min-width: 110px;
+      max-width: 130px;
+      width: 1%;
+      text-align: center;
+    }
+  </style>
+  <script>
+    document.getElementById('pronoImage').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('imagePreview');
+          preview.innerHTML = `<img src="${e.target.result}" alt="Aperçu">`;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('newPronoForm').onsubmit = function(e) {
+      e.preventDefault();
+      const category = document.getElementById('pronoCategory').value;
+      const imageFile = document.getElementById('pronoImage').files[0];
+      const postDate = document.getElementById('pronoPostDate').value;
+      if (!imageFile) {
+        alert('Veuillez sélectionner une image');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const pronos = JSON.parse(localStorage.getItem('neurobet_pronos') || '[]');
+        const newProno = {
+          id: Date.now(),
+          sport: category,
+          team1: '',
+          team2: '',
+          betType: '',
+          result: '',
+          image: e.target.result,
+          postDate: postDate,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+        pronos.unshift(newProno);
+        localStorage.setItem('neurobet_pronos', JSON.stringify(pronos));
+        // Réinitialiser le formulaire et l'aperçu d'image
+        document.getElementById('newPronoForm').reset();
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('imagePreview').innerHTML = '';
+        // Rafraîchir la liste
+        renderAdminPronos();
+      };
+      reader.readAsDataURL(imageFile);
+    };
+
+    function loadParis() {
+      const paris = JSON.parse(localStorage.getItem('neurobet_paris') || '[]');
+      const parisList = document.getElementById('parisList');
+      parisList.innerHTML = '';
+      // Afficher uniquement le dernier prono publié
+      if (paris.length > 0) {
+        const pari = paris[0];
+        const pariElement = document.createElement('div');
+        pariElement.className = 'pari-item';
+        pariElement.innerHTML = `
+          <div class="pari-info">
+            <p>Catégorie: ${pari.category}</p>
+            <p>Date: ${new Date(pari.date).toLocaleDateString()}</p>
+            <p>Statut: ${pari.status}</p>
+            ${pari.image ? `<img src="${pari.image}" alt="Capture d'écran" style="max-width: 200px; margin-top: 10px;">` : ''}
+          </div>
+        `;
+        parisList.appendChild(pariElement);
+      }
+    }
+
+    document.querySelectorAll('.sidebar-link').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-link').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const section = item.dataset.section;
+        document.querySelectorAll('.pro-card').forEach(s => s.style.display = 'none');
+        document.getElementById(`section-${section}`).style.display = 'block';
+        if (section === 'analyse') {
+          updateCharts();
+        }
+        if (section === 'manage-pronos') {
+          renderAdminPronos();
+        }
+      });
+    });
+
+    function updateCharts() {
+      let clients = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
+      clients = clients.filter(client => client.paymentMethod && client.paymentMethod.trim() !== '');
+      const durationStats = {};
+      clients.forEach(client => {
+        const duration = client.abo || 'Non spécifié';
+        durationStats[duration] = (durationStats[duration] || 0) + 1;
+      });
+      if(window.durationChart) window.durationChart.destroy();
+      if(window.paymentChart) window.paymentChart.destroy();
+      const durationCtx = document.getElementById('chart-duration').getContext('2d');
+      window.durationChart = new Chart(durationCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(durationStats),
+          datasets: [{
+            data: Object.values(durationStats),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {position: 'bottom'},
+            datalabels: {
+              color: '#fff',
+              font: {weight: 'bold', size: 18},
+              formatter: function(value, context) {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                if (!total || value === 0) return '';
+                return Math.round(100 * value / total) + '%';
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      // Statistiques de moyen de paiement
+      const paymentStats = {};
+      clients.forEach(client => {
+        const payment = client.paymentMethod || 'Non spécifié';
+        paymentStats[payment] = (paymentStats[payment] || 0) + 1;
+      });
+      const paymentCtx = document.getElementById('chart-payment').getContext('2d');
+      window.paymentChart = new Chart(paymentCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(paymentStats),
+          datasets: [{
+            data: Object.values(paymentStats),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {position: 'bottom'},
+            datalabels: {
+              color: '#fff',
+              font: {weight: 'bold', size: 18},
+              formatter: function(value, context) {
+                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                if (!total || value === 0) return '';
+                return Math.round(100 * value / total) + '%';
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+      document.getElementById('total-clients').textContent = clients.length;
+      let total = 0;
+      clients.forEach(client => {
+        const prix = parseFloat((client.prix || '').toString().replace(/[^\d\.]/g, ''));
+        if(!isNaN(prix)) total += prix;
+      });
+      document.getElementById('total-revenue').textContent = total.toLocaleString('fr-FR', {style:'currency', currency:'EUR'});
+    }
+
+    function renderClients() {
+      const clients = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
+      const tbody = document.getElementById('clientsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      // Afficher du plus récent au plus ancien
+      clients.slice().reverse().forEach((client, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td>${client.prix || ''}</td><td>${client.paymentMethod || ''}</td><td><button class='delete-client-btn' data-idx='${clients.length-1-idx}' style='color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;' title='Supprimer'>&#10006;</button></td>`;
+        tbody.appendChild(tr);
+      });
+      // Ajout du listener pour suppression
+      document.querySelectorAll('.delete-client-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const idx = parseInt(this.getAttribute('data-idx'));
+          let clients = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
+          clients.splice(idx, 1);
+          localStorage.setItem('neurobet_users', JSON.stringify(clients));
+          renderClients();
+          updateCharts && updateCharts();
+        });
+      });
+    }
+
+    function renderAdminPronos() {
+      const pronos = JSON.parse(localStorage.getItem('neurobet_pronos') || '[]');
+      const suivis = JSON.parse(localStorage.getItem('neurobet_suivis') || '[]');
+      const tbody = document.getElementById('pronoTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      pronos.forEach((prono, idx) => {
+        const nbSuivi = suivis.filter(s => s.id === prono.id && s.suivi === 1).length;
+        const nbNonSuivi = suivis.filter(s => s.id === prono.id && s.suivi === 0).length;
+        let sportLabel = '';
+        if (prono.sport === 'basketball' || prono.sport === 'basket') sportLabel = '🏀 Basket';
+        else if (prono.sport === 'football' || prono.sport === 'foot') sportLabel = '⚽ Foot';
+        else if (prono.sport === 'tennis') sportLabel = '🎾 Tennis';
+        else sportLabel = prono.sport ? prono.sport.charAt(0).toUpperCase() + prono.sport.slice(1) : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${sportLabel}</td>
+          <td>${prono.image ? `<img src="${prono.image}" alt="Capture d'écran" class="prono-img-thumb" data-img="${prono.image}" style="max-width:120px;max-height:80px;border-radius:8px;cursor:pointer;">` : ''}</td>
+          <td>
+            <select data-idx="${idx}" class="prono-status-select">
+              <option value="pending" ${prono.status === 'pending' ? 'selected' : ''}>En cours</option>
+              <option value="won" ${prono.status === 'won' ? 'selected' : ''}>Gagné</option>
+              <option value="lost" ${prono.status === 'lost' ? 'selected' : ''}>Perdu</option>
+            </select>
+          </td>
+          <td>${nbSuivi}</td>
+          <td>${nbNonSuivi}</td>
+          <td><button data-idx="${idx}" class="delete-prono-btn" style="color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;" title="Supprimer">&#10006;</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      // Gestion du changement de statut
+      document.querySelectorAll('.prono-status-select').forEach(select => {
+        select.addEventListener('change', function() {
+          const idx = this.getAttribute('data-idx');
+          let pronos = JSON.parse(localStorage.getItem('neurobet_pronos') || '[]');
+          pronos[idx].status = this.value;
+          localStorage.setItem('neurobet_pronos', JSON.stringify(pronos));
+          renderAdminPronos();
+        });
+      });
+      // Suppression d'un prono
+      document.querySelectorAll('.delete-prono-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const idx = this.getAttribute('data-idx');
+          let pronos = JSON.parse(localStorage.getItem('neurobet_pronos') || '[]');
+          pronos.splice(idx, 1);
+          localStorage.setItem('neurobet_pronos', JSON.stringify(pronos));
+          renderAdminPronos();
+        });
+      });
+      // Aperçu image en grand
+      document.querySelectorAll('.prono-img-thumb').forEach(img => {
+        img.addEventListener('click', function() {
+          document.getElementById('modalImage').src = this.getAttribute('data-img');
+          document.getElementById('modalImagePreview').style.display = 'flex';
+        });
+      });
+    }
+    // Fermeture du modal image
+    document.getElementById('closeModalImage').onclick = function() {
+      document.getElementById('modalImagePreview').style.display = 'none';
+      document.getElementById('modalImage').src = '';
+    };
+    document.getElementById('modalImagePreview').onclick = function(e) {
+      if(e.target === this) {
+        this.style.display = 'none';
+        document.getElementById('modalImage').src = '';
+      }
+    };
+  </script>
+</body>
+</html> 

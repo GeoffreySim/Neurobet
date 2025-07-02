@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - NeuroBet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <a href="index.html"><img src="logo.png" alt="NeuroBet Logo" class="logo-auth" style="cursor:pointer;"></a>
+    <h2>Connexion</h2>
+    <form id="loginForm">
+      <input type="email" placeholder="Email" name="email" required>
+      <input type="password" placeholder="Mot de passe" name="password" required>
+      <button type="submit" class="btn-auth">Se connecter</button>
+    </form>
+    <div class="auth-link">Pas encore de compte ? <a href="register.html">Inscription</a></div>
+  </div>
+  <script>
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const email = form.email.value;
+      const password = form.password.value;
+      let users = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+      if (user) {
+        localStorage.setItem('neurobet_current_user', JSON.stringify({ pseudo: user.pseudo, email: user.email }));
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('Identifiants incorrects');
+      }
+    };
+  </script>
+</body>
+</html> 

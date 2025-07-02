@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - NeuroBet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <a href="index.html"><img src="logo.png" alt="NeuroBet Logo" class="logo-auth" style="cursor:pointer;"></a>
+    <h2>Inscription</h2>
+    <form id="registerForm" class="auth-form">
+      <input type="text" id="pseudo" placeholder="Pseudo" name="pseudo" required>
+      <input type="email" id="email" placeholder="Email" name="email" required>
+      <input type="password" id="password" placeholder="Mot de passe" name="password" required>
+      <button type="submit" class="btn-auth">S'inscrire</button>
+    </form>
+    <div class="auth-link">Déjà inscrit ? <a href="login.html">Connexion</a></div>
+  </div>
+  <script>
+    document.getElementById('registerForm').onsubmit = function(e) {
+      e.preventDefault();
+      
+      const pseudo = document.getElementById('pseudo').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      const users = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
+      
+      if (users.some(user => user.email === email)) {
+        alert('Cet email est déjà utilisé');
+        return;
+      }
+      
+      const newUser = {
+        pseudo: pseudo,
+        email: email,
+        password: password,
+        date: new Date().toISOString()
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('neurobet_users', JSON.stringify(users));
+      localStorage.setItem('neurobet_current_user', JSON.stringify(newUser));
+      
+      window.location.href = 'payment.html';
+    };
+  </script>
+</body>
+</html> 

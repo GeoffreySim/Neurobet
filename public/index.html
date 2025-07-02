@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroBet - Conseils IA pour Paris Sportifs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .abo-cards-choice {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      gap: 32px;
+      width: 100%;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      align-items: stretch;
+      justify-content: center;
+      margin-top: 32px;
+      margin-bottom: 32px;
+    }
+    .abo-card-choice {
+      width: 100%;
+      max-width: 240px;
+      min-width: 0;
+      margin: 0;
+      background: #18263a;
+      border-radius: 24px;
+      box-shadow: 0 2px 12px rgba(45,225,194,0.07);
+      padding: 32px 18px 28px 18px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border 0.2s, box-shadow 0.2s, color 0.2s;
+      color: #eafcff;
+      font-weight: 700;
+      font-size: 1.05em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      min-width: 0;
+      min-height: 150px;
+    }
+    @media (max-width: 900px) {
+      .abo-cards-choice {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        gap: 18px;
+        max-width: 98vw;
+        align-items: center;
+        margin-top: 18px;
+        margin-bottom: 18px;
+      }
+      .abo-card-choice {
+        max-width: 98vw;
+        width: 100%;
+        margin-bottom: 18px;
+        padding: 20px 8px 16px 8px;
+      }
+    }
+    .how-steps {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+      justify-content: center;
+      margin: 40px 0 32px 0;
+    }
+    .how-step {
+      background: #18263a;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(45,225,194,0.07);
+      padding: 32px 24px 28px 24px;
+      min-width: 220px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: #eafcff;
+      gap: 16px;
+    }
+    .how-step-number {
+      font-size: 2.2em;
+      font-weight: 800;
+      color: #2de1c2;
+      margin-bottom: 8px;
+    }
+    .how-step-title {
+      font-size: 1.2em;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .how-step-desc {
+      font-size: 1em;
+      color: #eafcff;
+      opacity: 0.95;
+    }
+    @media (max-width: 900px) {
+      .how-steps {
+        flex-direction: column;
+        gap: 18px;
+        align-items: center;
+      }
+      .how-step {
+        min-width: 0;
+        max-width: 98vw;
+        padding: 24px 10px 18px 10px;
+      }
+    }
+    .why-grid .why-item {
+      transition: transform 0.25s cubic-bezier(.4,2,.6,1), box-shadow 0.25s;
+      box-shadow: 0 2px 12px rgba(45,225,194,0.07);
+    }
+    .why-grid .why-item:hover {
+      transform: translateY(-10px) scale(1.06) rotate(-2deg);
+      box-shadow: 0 8px 32px rgba(45,225,194,0.18);
+      background: #1a2a3a;
+      color: #2de1c2;
+    }
+    .specialites-grid .specialite-item:hover {
+      transform: translateY(-10px) scale(1.06) rotate(-2deg);
+      box-shadow: 0 8px 32px rgba(45,225,194,0.18);
+      filter: brightness(1.08);
+    }
+    .btn-telegram {
+      background: #2de1c2;
+      color: #101926;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 36px;
+      font-size: 1.2em;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(45,225,194,0.13);
+      transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+      animation: btnPulse 1.8s infinite alternate;
+    }
+    .btn-telegram:hover {
+      background: #1a8f7d;
+      color: #fff;
+      transform: scale(1.07) translateY(-2px) rotate(-1deg);
+      box-shadow: 0 8px 32px rgba(45,225,194,0.22);
+      animation: btnPulseHover 0.7s infinite alternate;
+    }
+    @keyframes btnPulse {
+      0% { box-shadow: 0 4px 24px rgba(45,225,194,0.13); transform: scale(1); }
+      100% { box-shadow: 0 8px 32px rgba(45,225,194,0.22); transform: scale(1.04); }
+    }
+    @keyframes btnPulseHover {
+      0% { box-shadow: 0 8px 32px rgba(45,225,194,0.22); transform: scale(1.07) translateY(-2px) rotate(-1deg); }
+      100% { box-shadow: 0 12px 40px rgba(45,225,194,0.28); transform: scale(1.11) translateY(-4px) rotate(-2deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-flex">
+      <img src="logo.png" alt="NeuroBet Logo" class="logo">
+      <nav>
+        <ul>
+          <li><a href="#specialites">Nos sports</a></li>
+          <li><a href="#how">Fonctionnement</a></li>
+          <li><a href="#abonnement">Abonnement</a></li>
+          <!--<li><a href="#contact">Contact</a></li>-->
+          <li><a href="register.html" class="btn-nav">S'inscrire</a></li>
+          <li><a href="login.html" class="btn-nav">Connexion</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="container hero-content">
+      <div class="hero-text">
+        <h1>Boostez vos paris sportifs avec l'IA</h1>
+        <p>Des conseils exclusifs, des analyses pointues.</p>
+        <a href="register.html" class="btn-nav" target="_self">Rejoindre la révolution NeuroBet</a>
+      </div>
+    </div>
+  </section>
+  <section class="why" id="why">
+    <div class="container">
+      <h2>Pourquoi choisir NeuroBet ?</h2>
+      <div class="why-grid">
+        <div class="why-item">
+          <span class="icon">🤖</span>
+          <h3>Intelligence Artificielle</h3>
+          <p>Des algorithmes de pointe pour maximiser vos gains.</p>
+        </div>
+        <div class="why-item">
+          <span class="icon">📅</span>
+          <h3>Paris quotidiens</h3>
+          <p>Recevez chaque jour des pronostics frais, sélectionnés par notre IA.</p>
+        </div>
+        <div class="why-item">
+          <span class="icon">👁️</span>
+          <h3>Transparence totale</h3>
+          <p>Historique des résultats accessible et suivi public de la performance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="specialites" id="specialites">
+    <div class="container">
+      <h2 style="color:#2de1c2;text-align:center;font-size:2em;margin-bottom:32px;letter-spacing:1px;">Nos sports de spécialité</h2>
+      <div class="specialites-grid" style="display:flex;gap:32px;justify-content:center;margin-top:0;flex-wrap:wrap;">
+        <div class="specialite-item" style="background:linear-gradient(120deg,#2de1c2 0%,#18263a 100%);border-radius:20px;padding:36px 28px;min-width:180px;max-width:260px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px rgba(45,225,194,0.13);transition:transform 0.22s,box-shadow 0.22s;">
+          <span style="font-size:2.7em;filter:drop-shadow(0 2px 8px #10192644);">⚽</span>
+          <h3 style="color:#101926;margin:18px 0 8px 0;font-size:1.3em;letter-spacing:0.5px;">Football</h3>
+          <p style="color:#eafcff;opacity:0.97;text-align:center;">Analyse IA sur tous les grands championnats et compétitions internationales.</p>
+        </div>
+        <div class="specialite-item" style="background:linear-gradient(120deg,#7ffb72 0%,#18263a 100%);border-radius:20px;padding:36px 28px;min-width:180px;max-width:260px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px rgba(45,225,194,0.13);transition:transform 0.22s,box-shadow 0.22s;">
+          <span style="font-size:2.7em;filter:drop-shadow(0 2px 8px #10192644);">🏀</span>
+          <h3 style="color:#101926;margin:18px 0 8px 0;font-size:1.3em;letter-spacing:0.5px;">Basket</h3>
+          <p style="color:#eafcff;opacity:0.97;text-align:center;">Pronostics sur la NBA, l'Euroleague et les plus grands championnats.</p>
+        </div>
+        <div class="specialite-item" style="background:linear-gradient(120deg,#36A2EB 0%,#18263a 100%);border-radius:20px;padding:36px 28px;min-width:180px;max-width:260px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px rgba(45,225,194,0.13);transition:transform 0.22s,box-shadow 0.22s;">
+          <span style="font-size:2.7em;filter:drop-shadow(0 2px 8px #10192644);">🎾</span>
+          <h3 style="color:#101926;margin:18px 0 8px 0;font-size:1.3em;letter-spacing:0.5px;">Tennis</h3>
+          <p style="color:#eafcff;opacity:0.97;text-align:center;">Suivi des tournois ATP, WTA et des grands chelems toute l'année.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="how" id="how">
+    <div class="container">
+      <h2>Comment ça marche ?</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-number">1</div>
+          <div class="how-step-title">Inscription</div>
+          <div class="how-step-desc">Créez votre compte en quelques secondes.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-number">2</div>
+          <div class="how-step-title">Recevez les pronostics</div>
+          <div class="how-step-desc">Accédez chaque jour à nos pronostics IA exclusifs dans votre espace membre.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-number">3</div>
+          <div class="how-step-title">Empochez vos gains</div>
+          <div class="how-step-desc">Pariez, suivez les résultats et profitez de vos gains grâce à la puissance de l'IA !</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="abonnement" id="abonnement">
+    <div class="container">
+      <h2>Choisissez votre formule</h2>
+      <div class="abo-cards-choice">
+        <div class="abo-card-choice" id="weekly-subscription">
+          <h3>Hebdomadaire</h3>
+          <div class="abo-card-price" id="weekly-price">9€</div>
+          <p>Idéal pour tester</p>
+          <a href="register.html" class="btn-nav">S'abonner</a>
+        </div>
+        <div class="abo-card-choice" id="monthly-subscription">
+          <h3>Mensuel</h3>
+          <div class="abo-card-price" id="monthly-price">29€</div>
+          <p>La plus populaire</p>
+          <a href="register.html" class="btn-nav">S'abonner</a>
+        </div>
+        <div class="abo-card-choice" id="yearly-subscription">
+          <h3>Annuel</h3>
+          <div class="abo-card-price" id="yearly-price">299€</div>
+          <p>Économisez 2 mois</p>
+          <a href="register.html" class="btn-nav">S'abonner</a>
+        </div>
+        <div class="abo-card-choice" id="lifetime-subscription">
+          <h3>À vie</h3>
+          <div class="abo-card-price" id="lifetime-price">499€</div>
+          <p>Accès illimité</p>
+          <a href="register.html" class="btn-nav">S'abonner</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-warning" style="text-align:center;color:#ff4d4d;font-size:0.98em;opacity:0.85;margin-bottom:18px;width:100%;">
+      Jouer comporte des risques : endettement, isolement, dépendance... Appelez le 09 74 75 13 13 (appel non surtaxé) pour être aidé.
+    </div>
+    <div class="container footer-flex">
+      <div class="footer-copyright">© 2024 NeuroBet. Tous droits réservés.</div>
+      <div class="footer-links">
+        <a href="mentions-legales.html">Mentions légales</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="js/stripe-payment.js"></script>
+</body>
+</html> 

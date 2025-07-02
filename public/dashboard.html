@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroBet - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-pro">
+  <div class="dashboard-pro-main">
+    <div class="dashboard-header">
+      <div class="dashboard-header-content">
+        <button class="logout-btn" onclick="window.location.href='login.html'" title="Déconnexion">⏻</button>
+        <img src="logo.png" alt="NeuroBet" class="dashboard-header-logo">
+        <div class="dashboard-header-title">NeuroBet</div>
+      </div>
+    </div>
+    
+    <div class="sidebar-pro">
+      <ul class="sidebar-menu-pro">
+        <li class="sidebar-link" data-section="accueil">
+          <span class="sidebar-icon">🏠</span>
+          <span class="sidebar-label">Accueil</span>
+        </li>
+        <li class="sidebar-link" data-section="basket">
+          <span class="sidebar-icon">🏀</span>
+          <span class="sidebar-label">Basket</span>
+        </li>
+        <li class="sidebar-link" data-section="foot">
+          <span class="sidebar-icon">⚽</span>
+          <span class="sidebar-label">Foot</span>
+        </li>
+        <li class="sidebar-link" data-section="tennis">
+          <span class="sidebar-icon">🎾</span>
+          <span class="sidebar-label">Tennis</span>
+        </li>
+        <li class="sidebar-link" data-section="stats">
+          <span class="sidebar-icon">📈</span>
+          <span class="sidebar-label">Statistiques</span>
+        </li>
+        <li class="sidebar-link" data-section="historique">
+          <span class="sidebar-icon">📊</span>
+          <span class="sidebar-label">Historique</span>
+        </li>
+        <li class="sidebar-link" data-section="compte">
+          <span class="sidebar-icon">👤</span>
+          <span class="sidebar-label">Mon compte</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="dashboard-center">
+      <section class="pro-card" id="section-accueil" style="display:block;">
+        <h3>Bienvenue sur NeuroBet</h3>
+        <div class="accueil-content">
+          <p>Bienvenue dans votre espace membre NeuroBet !</p>
+          <p>Retrouvez ici tous vos pronostics IA, vos statistiques et la gestion de votre abonnement.</p>
+          <button class="btn-abonnement" onclick="showLastProno()">Voir le paris du jour</button>
+        </div>
+      </section>
+      <section class="pro-card" id="section-compte" style="display:none;">
+        <h3><span class="prono-icon">👤</span> Mon compte</h3>
+        <div class="account-info">
+          <div class="account-section">
+            <h4>Informations personnelles</h4>
+            <div class="info-row">
+              <span class="info-label">Email :</span>
+              <span class="info-value" id="user-email">user@email.com</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Pseudo :</span>
+              <span class="info-value" id="user-pseudo">Utilisateur</span>
+            </div>
+          </div>
+          
+          <div class="account-section">
+            <h4>Abonnement</h4>
+            <div class="info-row">
+              <span class="info-label">Statut :</span>
+              <span class="abo-status" id="abo-status">Actif</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Type :</span>
+              <span class="info-value" id="abo-type">Mensuel</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Début :</span>
+              <span class="info-value" id="abo-start">01/01/2024</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Fin :</span>
+              <span class="info-value" id="abo-end">01/02/2024</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Durée restante :</span>
+              <span class="info-value highlight" id="abo-remaining">30 jours</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-abonnement" onclick="window.open('payment.html', '_blank')">Payer / Renouveler</button>
+      </section>
+      <section class="pro-card" id="section-stats" style="display:none;">
+        <h3><span class="prono-icon">📈</span> Statistiques</h3>
+        <div class="stats-content">
+          <div class="stats-chart-container">
+            <h4>Répartition des paris suivis / non suivis</h4>
+            <canvas id="chart-suivi" width="320" height="320"></canvas>
+          </div>
+          <div class="stats-win-row" style="display:flex;gap:32px;justify-content:center;margin-top:24px;align-items:stretch;">
+            <div class="stats-card" style="flex:1;min-width:160px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:150px;">
+              <h4 style="min-height:60px;max-height:60px;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;">% de victoire quand je suis</h4>
+              <div class="stats-value" id="stat-win-suivi" style="margin-top:auto;">0%</div>
+            </div>
+            <div class="stats-card" style="flex:1;min-width:160px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:150px;">
+              <h4 style="min-height:60px;max-height:60px;display:flex;align-items:center;justify-content:center;text-align:center;width:100%;">% de victoire quand je ne suis pas</h4>
+              <div class="stats-value" id="stat-win-nonsuivi" style="margin-top:auto;">0%</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="pro-card" id="section-basket" style="display:none;">
+        <h3><span class="prono-icon">🏀</span> Pronos Basket</h3>
+        <div class="prono-header"></div>
+        <ul class="prono-list" id="prono-basket-list"></ul>
+      </section>
+      <section class="pro-card" id="section-foot" style="display:none;">
+        <h3><span class="prono-icon">⚽</span> Pronos Foot</h3>
+        <div class="prono-header"></div>
+        <ul class="prono-list" id="prono-foot-list"></ul>
+      </section>
+      <section class="pro-card" id="section-tennis" style="display:none;">
+        <h3><span class="prono-icon">🎾</span> Pronos Tennis</h3>
+        <div class="prono-header"></div>
+        <ul class="prono-list" id="prono-tennis-list"></ul>
+      </section>
+      <section class="pro-card" id="section-historique" style="display:none;">
+        <h3><span class="prono-icon">📊</span> Historique</h3>
+        <div class="stats-grid">
+          <div class="stats-card">
+            <h4>Performance globale</h4>
+            <div class="stats-value" id="global-performance-client">78%</div>
+            <div class="stats-label">Taux de réussite</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Basket</h4>
+            <div class="stats-value" id="basket-performance-client">0%</div>
+            <div class="stats-label">Taux de réussite Basket</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Foot</h4>
+            <div class="stats-value" id="foot-performance-client">0%</div>
+            <div class="stats-label">Taux de réussite Foot</div>
+          </div>
+          <div class="stats-card">
+            <h4>Performance Tennis</h4>
+            <div class="stats-value" id="tennis-performance-client">0%</div>
+            <div class="stats-label">Taux de réussite Tennis</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+</body>
+</html> 
