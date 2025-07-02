@@ -64,7 +64,20 @@
     </div>
   </div>
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AXek_EjSvq8-7UkiSJ0gh1LDur8vN8ftI5FfC1GHnGKj8g6BqO0xRpTJ80OINKHrS0_33xrMCNqSBeFP&currency=EUR"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AaAciJ-uPDIBfnY6ZTmk77YCZqxhhX-_lA9_3E7YuPqAY7GNRWHovtXd6CPD21tbMcZYgSj9mGddmBiJ&currency=EUR"></script>
+  <script>
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return fetch('/api/paypal/create-order', { method: 'post' })
+          .then(res => res.json())
+          .then(data => data.id);
+      },
+      onApprove: function(data, actions) {
+        alert('Paiement PayPal approuvé !');
+        // Ici tu peux rediriger ou afficher un message de succès
+      }
+    }).render('#paypal-button-container');
+  </script>
   <script src="js/payment-choice.js"></script>
 </body>
 </html>
