@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistiques du site</title>
+</head>
+<body>
+  <h2>Statistiques du site</h2>
+  <ul>
+    <li>Nombre de visites : <span id="visits"></span></li>
+    <li>Nombre d'inscriptions : <span id="users"></span></li>
+    <li>Nombre de transactions : <span id="transactions"></span></li>
+  </ul>
+  <script>
+    fetch('/admin/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('visits').textContent = data.visits;
+        document.getElementById('users').textContent = data.users;
+        document.getElementById('transactions').textContent = data.transactions;
+      });
+  </script>
+</body>
+</html> 
