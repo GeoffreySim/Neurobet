@@ -38,8 +38,6 @@ app.use(express.json());
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 // Routes API paiement
 app.use('/api/payment', paymentRoutes);
-// Servir les fichiers statiques (HTML, CSS, JS, images...)
-app.use(express.static(path.join(__dirname, 'public')));
 // Rediriger / vers index.html
 app.get('/', async (req, res) => {
   console.log('Route / appelée');
@@ -51,6 +49,9 @@ app.get('/', async (req, res) => {
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Servir les fichiers statiques APRÈS la route '/'
+app.use(express.static('public'));
 
 // Route de test pour vérifier la connexion à la base
 app.get('/test-db', async (req, res) => {
