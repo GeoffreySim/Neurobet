@@ -198,6 +198,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+    // Bouton d'ajout
+    const addBtnTr = document.createElement('tr');
+    addBtnTr.innerHTML = `<td colspan="4"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
+    tbody.appendChild(addBtnTr);
+    document.getElementById('add-client-btn').onclick = () => showUserPopup(null);
     try {
       const res = await fetch('/admin/api/clients');
       const data = await res.json();
@@ -208,23 +213,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       data.clients.forEach(client => {
-        const tr = document.createElement('tr');
+        const debut = client.abonnement_debut ? new Date(client.abonnement_debut) : null;
+        const fin = client.abonnement_type === 'lifetime' ? 'À vie' : (client.abonnement_fin ? new Date(client.abonnement_fin) : null);
         let duree = '-';
-        if (client.abonnement_type === 'lifetime') {
+        if (fin === 'À vie') {
           duree = 'À vie';
-        } else if (client.abonnement_debut && client.abonnement_fin) {
-          const debut = new Date(client.abonnement_debut);
-          const fin = new Date(client.abonnement_fin);
-          const diff = Math.ceil((fin - debut) / (1000 * 60 * 60 * 24));
-          duree = diff > 1 ? diff + ' jours' : '1 jour';
-        } else if (client.abonnement_fin) {
-          duree = 'Jusqu\'au ' + new Date(client.abonnement_fin).toLocaleDateString();
+        } else if (debut && fin) {
+          const diff = Math.round((fin - debut) / (1000*60*60*24));
+          duree = diff + ' jours';
+        } else if (fin && !debut) {
+          duree = new Date(fin).toLocaleDateString();
         }
+        const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="font-weight:600;color:#1e90ff;">${client.pseudo || ''}</td>
-          <td style="color:#22304a;font-weight:600;font-size:1.08em;">${client.email}</td>
+          <td style="color:#22304a;">${client.email}</td>
           <td style="color:#7ffb72;">${duree}</td>
-          <td><button class="btn-edit-user" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-weight:600;cursor:pointer;transition:background 0.15s;">Modifier</button></td>
+          <td><button class="btn-edit-user" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-weight:600;cursor:pointer;">Modifier</button></td>
         `;
         tr.querySelector('.btn-edit-user').onclick = () => showUserPopup(client);
         tbody.appendChild(tr);
@@ -233,14 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td colspan="4">Erreur chargement clients</td>';
       tbody.appendChild(tr);
-      console.error('Erreur chargement clients', e);
-    }
-    // Gestion du bouton Ajouter en haut à droite
-    try {
-      const addBtn = document.getElementById('add-client-btn');
-      if (addBtn) addBtn.onclick = () => showUserPopup(null);
-    } catch (err) {
-      console.error('Erreur gestion bouton Ajouter client', err);
     }
   }
   // Appel lors du clic sur l'onglet clients
