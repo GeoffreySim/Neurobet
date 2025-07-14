@@ -17,9 +17,10 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// Création automatique de la table site_visits si elle n'existe pas
+// Création automatique des tables si elles n'existent pas
 (async () => {
   try {
+    // Table site_visits
     await pool.query(`
       CREATE TABLE IF NOT EXISTS site_visits (
         id SERIAL PRIMARY KEY,
@@ -27,8 +28,22 @@ app.use(session({
       );
     `);
     console.log('Table site_visits vérifiée/créée avec succès.');
+    
+    // Table transactions
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER,
+        montant DECIMAL(10,2) NOT NULL,
+        devise VARCHAR(3) DEFAULT 'EUR',
+        type VARCHAR(50),
+        payment_id VARCHAR(255),
+        date_transaction TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('Table transactions vérifiée/créée avec succès.');
   } catch (e) {
-    console.error('Erreur lors de la création de la table site_visits :', e.message);
+    console.error('Erreur lors de la création des tables :', e.message);
   }
 })();
 
@@ -319,12 +334,96 @@ app.post('/admin/api/clients/add', requireAdmin, async (req, res) => {
 app.get('/admin/api/revenus', requireAdmin, async (req, res) => {
   try {
     const result = await pool.query('SELECT COALESCE(SUM(montant),0) AS total, COUNT(*) AS nb FROM transactions');
+    console.log('Revenus query result:', result.rows[0]);
     res.json({
       total_revenue: parseFloat(result.rows[0].total),
       transactions: parseInt(result.rows[0].nb)
     });
   } catch (e) {
-    res.status(500).json({ error: 'Erreur chargement revenus' });
+    console.error('Erreur revenus:', e);
+    res.status(500).json({ error: 'Erreur chargement revenus: ' + e.message });
+  }
+});
+
+// API revenus détaillés avec statistiques par période
+app.get('/admin/api/revenus/detailed', requireAdmin, async (req, res) => {
+  try {
+    // Revenus par période
+    const today = await pool.query(`
+      SELECT COALESCE(SUM(montant), 0) AS total 
+      FROM transactions 
+      WHERE DATE(date_transaction AT TIME ZONE 'Europe/Paris') = CURRENT_DATE
+    `);
+    
+    const week = await pool.query(`
+      SELECT COALESCE(SUM(montant), 0) AS total 
+      FROM transactions 
+      WHERE date_transaction >= DATE_TRUNC('week', CURRENT_DATE)
+    `);
+    
+    const month = await pool.query(`
+      SELECT COALESCE(SUM(montant), 0) AS total 
+      FROM transactions 
+      WHERE DATE_TRUNC('month', date_transaction AT TIME ZONE 'Europe/Paris') = DATE_TRUNC('month', CURRENT_DATE)
+    `);
+    
+    const year = await pool.query(`
+      SELECT COALESCE(SUM(montant), 0) AS total 
+      FROM transactions 
+      WHERE DATE_TRUNC('year', date_transaction AT TIME ZONE 'Europe/Paris') = DATE_TRUNC('year', CURRENT_DATE)
+    `);
+    
+    // Répartition par moyen de paiement
+    const paymentMethods = await pool.query(`
+      SELECT 
+        COALESCE(type, 'Non spécifié') as payment_method,
+        COUNT(*) as count,
+        COALESCE(SUM(montant), 0) as total
+      FROM transactions 
+      GROUP BY type 
+      ORDER BY total DESC
+    `);
+    
+    // Évolution des revenus par jour (30 derniers jours)
+    const evolution = await pool.query(`
+      SELECT 
+        DATE(date_transaction AT TIME ZONE 'Europe/Paris') as day,
+        COUNT(*) as transactions,
+        COALESCE(SUM(montant), 0) as revenue
+      FROM transactions 
+      WHERE date_transaction >= CURRENT_DATE - INTERVAL '30 days'
+      GROUP BY day 
+      ORDER BY day DESC
+    `);
+    
+    // Détail des transactions récentes
+    const transactions = await pool.query(`
+      SELECT 
+        t.date_transaction,
+        u.pseudo,
+        t.montant,
+        t.type,
+        t.payment_id
+      FROM transactions t
+      LEFT JOIN users u ON t.user_id = u.id
+      ORDER BY t.date_transaction DESC
+      LIMIT 50
+    `);
+    
+    res.json({
+      periods: {
+        today: parseFloat(today.rows[0].total),
+        week: parseFloat(week.rows[0].total),
+        month: parseFloat(month.rows[0].total),
+        year: parseFloat(year.rows[0].total)
+      },
+      payment_methods: paymentMethods.rows,
+      evolution: evolution.rows,
+      transactions: transactions.rows
+    });
+  } catch (e) {
+    console.error('Erreur revenus détaillés:', e);
+    res.status(500).json({ error: 'Erreur chargement revenus détaillés: ' + e.message });
   }
 });
 

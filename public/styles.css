@@ -2060,6 +2060,86 @@ label {
 .tile-transactions { background: linear-gradient(90deg,#7ffb72 60%,#00e676 100%); color:#222; }
 .tile-revenue { background: linear-gradient(90deg,#ffd700 60%,#ffb347 100%); color:#222; }
 
+/* Styles pour la section revenus */
+.revenus-filters {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.filter-btn {
+  background: #18263a;
+  color: #2de1c2;
+  border: 2px solid #2de1c2;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: #2de1c2;
+  color: #101926;
+}
+
+.revenus-table-container {
+  background: #181f2a;
+  border-radius: 18px;
+  padding: 24px;
+  margin-top: 32px;
+}
+
+.revenus-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
+  font-size: 0.9em;
+}
+
+.revenus-table th,
+.revenus-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #2a3a4a;
+}
+
+.revenus-table th {
+  background: #14202e;
+  font-weight: 700;
+  color: #2de1c2;
+}
+
+.revenus-table tbody tr:hover {
+  background: #1a2634;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .revenus-filters {
+    flex-wrap: wrap;
+  }
+  
+  .filter-btn {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .revenus-table {
+    font-size: 0.8em;
+  }
+  
+  .revenus-table th,
+  .revenus-table td {
+    padding: 8px 4px;
+  }
+}
+
 .dashboard-charts-flex {
   display: flex;
   flex-wrap: wrap;

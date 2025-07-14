@@ -194,6 +194,8 @@
       <!-- Section Revenus -->
       <section class="pro-card" id="section-revenus" style="display:none;">
         <h3><span class="prono-icon">💰</span> Revenus</h3>
+        
+        <!-- Statistiques générales -->
         <div class="dashboard-stats-grid dashboard-stats-grid-revenus" style="margin-top:12px;gap:32px;justify-content:center;">
           <div class="dashboard-stat-tile tile-transactions" style="background:linear-gradient(90deg,#7ffb72 60%,#00e676 100%);color:#222;min-width:220px;">
             <div class="tile-icon" style="font-size:2.5em;">💳</div>
@@ -204,6 +206,77 @@
             <div class="tile-icon" style="font-size:2.5em;">💰</div>
             <div class="tile-label" style="font-size:1.1em;">Revenus totaux</div>
             <div class="tile-value" id="revenus-total" style="font-size:2.5em;font-weight:800;">0&nbsp;€</div>
+          </div>
+        </div>
+
+        <!-- Filtres de période -->
+        <div class="revenus-filters" style="margin:24px 0;text-align:center;">
+          <button class="filter-btn active" data-period="day">Jour</button>
+          <button class="filter-btn" data-period="week">Semaine</button>
+          <button class="filter-btn" data-period="month">Mois</button>
+          <button class="filter-btn" data-period="year">Année</button>
+        </div>
+
+        <!-- Statistiques par période -->
+        <div class="revenus-period-stats" style="margin-bottom:32px;">
+          <div class="dashboard-stats-grid" style="gap:16px;justify-content:center;">
+            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#1e90ff 60%,#00e6d8 100%);color:#222;min-width:180px;">
+              <div class="tile-icon">📅</div>
+              <div class="tile-label">Aujourd'hui</div>
+              <div class="tile-value" id="revenus-today">0&nbsp;€</div>
+            </div>
+            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#00e6d8 60%,#1e90ff 100%);color:#222;min-width:180px;">
+              <div class="tile-icon">📊</div>
+              <div class="tile-label">Cette semaine</div>
+              <div class="tile-value" id="revenus-week">0&nbsp;€</div>
+            </div>
+            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffb347 60%,#ffcc80 100%);color:#222;min-width:180px;">
+              <div class="tile-icon">📈</div>
+              <div class="tile-label">Ce mois</div>
+              <div class="tile-value" id="revenus-month">0&nbsp;€</div>
+            </div>
+            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffcc80 60%,#ffb347 100%);color:#222;min-width:180px;">
+              <div class="tile-icon">📊</div>
+              <div class="tile-label">Cette année</div>
+              <div class="tile-value" id="revenus-year">0&nbsp;€</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="dashboard-charts-flex">
+          <!-- Graphique des revenus par période -->
+          <div class="dashboard-chart-block">
+            <h4>Évolution des revenus</h4>
+            <canvas id="revenus-chart" height="200"></canvas>
+          </div>
+          
+          <!-- Répartition par moyen de paiement -->
+          <div class="dashboard-chart-block">
+            <h4>Répartition par moyen de paiement</h4>
+            <canvas id="payment-methods-chart" height="200"></canvas>
+          </div>
+        </div>
+
+        <!-- Tableau détaillé des transactions -->
+        <div class="revenus-table-container" style="margin-top:32px;">
+          <h4>Détail des transactions</h4>
+          <div class="table-responsive">
+            <table class="revenus-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Utilisateur</th>
+                  <th>Montant</th>
+                  <th>Moyen de paiement</th>
+                  <th>Type</th>
+                  <th>ID Transaction</th>
+                </tr>
+              </thead>
+              <tbody id="transactions-table-body">
+                <!-- Rempli dynamiquement -->
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -371,75 +444,89 @@
         const duration = client.abo || 'Non spécifié';
         durationStats[duration] = (durationStats[duration] || 0) + 1;
       });
-      if(window.durationChart) window.durationChart.destroy();
-      if(window.paymentChart) window.paymentChart.destroy();
-      const durationCtx = document.getElementById('chart-duration').getContext('2d');
-      window.durationChart = new Chart(durationCtx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(durationStats),
-          datasets: [{
-            data: Object.values(durationStats),
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {position: 'bottom'},
-            datalabels: {
-              color: '#fff',
-              font: {weight: 'bold', size: 18},
-              formatter: function(value, context) {
-                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                if (!total || value === 0) return '';
-                return Math.round(100 * value / total) + '%';
+      
+      // Vérifier que les éléments existent avant de les utiliser
+      const durationCtx = document.getElementById('chart-duration');
+      const paymentCtx = document.getElementById('chart-payment');
+      const totalClientsEl = document.getElementById('total-clients');
+      const totalRevenueEl = document.getElementById('total-revenue');
+      
+      if (durationCtx) {
+        if(window.durationChart) window.durationChart.destroy();
+        window.durationChart = new Chart(durationCtx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(durationStats),
+            datasets: [{
+              data: Object.values(durationStats),
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {position: 'bottom'},
+              datalabels: {
+                color: '#fff',
+                font: {weight: 'bold', size: 18},
+                formatter: function(value, context) {
+                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  if (!total || value === 0) return '';
+                  return Math.round(100 * value / total) + '%';
+                }
               }
             }
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
+          },
+          plugins: [ChartDataLabels]
+        });
+      }
+      
       // Statistiques de moyen de paiement
       const paymentStats = {};
       clients.forEach(client => {
         const payment = client.paymentMethod || 'Non spécifié';
         paymentStats[payment] = (paymentStats[payment] || 0) + 1;
       });
-      const paymentCtx = document.getElementById('chart-payment').getContext('2d');
-      window.paymentChart = new Chart(paymentCtx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(paymentStats),
-          datasets: [{
-            data: Object.values(paymentStats),
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {position: 'bottom'},
-            datalabels: {
-              color: '#fff',
-              font: {weight: 'bold', size: 18},
-              formatter: function(value, context) {
-                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                if (!total || value === 0) return '';
-                return Math.round(100 * value / total) + '%';
+      
+      if (paymentCtx) {
+        if(window.paymentChart) window.paymentChart.destroy();
+        window.paymentChart = new Chart(paymentCtx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(paymentStats),
+            datasets: [{
+              data: Object.values(paymentStats),
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {position: 'bottom'},
+              datalabels: {
+                color: '#fff',
+                font: {weight: 'bold', size: 18},
+                formatter: function(value, context) {
+                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  if (!total || value === 0) return '';
+                  return Math.round(100 * value / total) + '%';
+                }
               }
             }
-          }
-        },
-        plugins: [ChartDataLabels]
-      });
-      document.getElementById('total-clients').textContent = clients.length;
+          },
+          plugins: [ChartDataLabels]
+        });
+      }
+      
+      if (totalClientsEl) totalClientsEl.textContent = clients.length;
+      
       let total = 0;
       clients.forEach(client => {
         const prix = parseFloat((client.prix || '').toString().replace(/[^\d\.]/g, ''));
         if(!isNaN(prix)) total += prix;
       });
-      document.getElementById('total-revenue').textContent = total.toLocaleString('fr-FR', {style:'currency', currency:'EUR'});
+      
+      if (totalRevenueEl) totalRevenueEl.textContent = total.toLocaleString('fr-FR', {style:'currency', currency:'EUR'});
     }
 
     function renderClients() {
