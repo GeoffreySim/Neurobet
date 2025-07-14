@@ -4,117 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion Admin - NeuroBet</title>
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
-  <style>
-    body {
-      background: linear-gradient(120deg, #2de1c2 0%, #1e90ff 100%);
-      min-height: 100vh;
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .admin-login-container {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px #1e90ff22;
-      padding: 38px 32px 32px 32px;
-      min-width: 320px;
-      max-width: 98vw;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-    }
-    .admin-login-title {
-      color: #1e90ff;
-      font-size: 1.5em;
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-    }
-    .admin-login-form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .admin-login-form label {
-      color: #1e90ff;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .admin-login-form input {
-      padding: 12px;
-      border-radius: 8px;
-      border: 1.5px solid #d0e2ff;
-      font-size: 1em;
-      background: #f7faff;
-      color: #1e293b;
-      margin-bottom: 8px;
-      transition: border 0.15s;
-    }
-    .admin-login-form input:focus {
-      border: 1.5px solid #1e90ff;
-      outline: none;
-    }
-    .admin-login-btn {
-      background: #1e90ff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 0;
-      font-weight: 700;
-      font-size: 1.1em;
-      cursor: pointer;
-      box-shadow: 0 2px 8px #1e90ff11;
-      transition: background 0.15s;
-      margin-top: 8px;
-    }
-    .admin-login-btn:hover {
-      background: #1565c0;
-    }
-    .admin-login-error {
-      color: #ff4d4d;
-      background: #ffeaea;
-      border-radius: 7px;
-      padding: 8px 12px;
-      margin-bottom: 0;
-      font-size: 1em;
-      text-align: center;
-      display: none;
-    }
-    @media (max-width: 600px) {
-      .admin-login-container {
-        min-width: 0;
-        padding: 18px 4vw 18px 4vw;
-      }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="admin-login-container">
-    <div class="admin-login-title">Espace Admin NeuroBet</div>
-    <form class="admin-login-form" id="adminLoginForm" autocomplete="off">
-      <label for="username">Identifiant</label>
-      <input type="text" id="username" name="username" required placeholder="Identifiant">
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" name="password" required placeholder="Mot de passe">
-      <div class="admin-login-error" id="adminLoginError"></div>
-      <button type="submit" class="admin-login-btn">Connexion</button>
+  <div class="auth-container">
+    <a href="index.html"><img src="/Logo.png" alt="NeuroBet Logo" class="logo-auth" style="cursor:pointer;"></a>
+    <h2 style="color:#1e90ff;">Connexion Admin</h2>
+    <form id="adminLoginForm">
+      <input type="text" placeholder="Identifiant" name="username" required>
+      <input type="password" placeholder="Mot de passe" name="password" required>
+      <button type="submit" class="btn-auth">Se connecter</button>
+      <div id="adminLoginError" style="color:#ff4d4d;margin-top:8px;display:none;"></div>
     </form>
   </div>
   <script>
-    const form = document.getElementById('adminLoginForm');
-    const errorDiv = document.getElementById('adminLoginError');
-    form.onsubmit = async function(e) {
+    document.getElementById('adminLoginForm').onsubmit = async function(e) {
       e.preventDefault();
+      const username = this.username.value;
+      const password = this.password.value;
+      const errorDiv = document.getElementById('adminLoginError');
       errorDiv.style.display = 'none';
-      const username = form.username.value;
-      const password = form.password.value;
       try {
         const res = await fetch('/admin/login', {
           method: 'POST',
