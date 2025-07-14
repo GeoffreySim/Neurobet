@@ -568,6 +568,17 @@ async function loadRevenusStats() {
   }
 }
 
+// Charger les stats revenus lors de l'affichage de la section revenus
+const revenusSidebar = document.querySelector('.sidebar-link[data-section="revenus"]');
+if (revenusSidebar) {
+  revenusSidebar.addEventListener('click', function() {
+    loadRevenusStats();
+    // Affiche la section revenus, masque les autres
+    document.querySelectorAll('.pro-card').forEach(sec => sec.style.display = 'none');
+    const section = document.getElementById('section-revenus');
+    if (section) section.style.display = 'block';
+  });
+}
 // Charger les stats revenus lors de l'affichage de la section analyse
 const analyseSidebar = document.querySelector('.sidebar-link[data-section="analyse"]');
 if (analyseSidebar) {
