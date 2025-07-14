@@ -153,7 +153,7 @@ document.getElementById('logout-btn').onclick = function() {
 // Affichage dynamique des infos Mon Compte
 fetch('/me').then(r=>r.json()).then(data => {
   if (data.logged) {
-    document.getElementById('compte-email').textContent = data.email;
+    document.getElementById('compte-email').textContent = data.email || '';
     if (data.abonnement_actif) {
       document.getElementById('compte-abonnement').textContent = 'actif';
       document.getElementById('compte-abonnement').style.color = '#388e3c';
@@ -169,14 +169,24 @@ fetch('/me').then(r=>r.json()).then(data => {
       document.getElementById('compte-abonnement').style.color = '#b71c1c';
       document.getElementById('compte-dates').textContent = '';
     }
+  } else {
+    document.getElementById('compte-email').textContent = '';
+    document.getElementById('compte-abonnement').textContent = '';
+    document.getElementById('compte-dates').textContent = '';
   }
 });
-// Masque la section pronos si abonnement inactif
+// Masque les sections pronos si abonnement inactif
 fetch('/me').then(r=>r.json()).then(data => {
   if (!data.abonnement_actif) {
+    ['basket','foot','tennis'].forEach(function(sport) {
+      var sec = document.getElementById('section-' + sport);
+      if (sec) {
+        sec.innerHTML = '<div style="color:#b71c1c;text-align:center;padding:32px;font-size:1.2em;">Abonnement requis pour accéder à cette section.</div>';
+      }
+    });
     var pronoSection = document.getElementById('section-pronos');
     if (pronoSection) {
-      pronoSection.style.display = 'none';
+      pronoSection.innerHTML = '<div style="color:#b71c1c;text-align:center;padding:32px;font-size:1.2em;">Abonnement requis pour accéder à cette section.</div>';
     }
   }
 });
