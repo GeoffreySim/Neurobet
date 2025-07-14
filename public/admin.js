@@ -89,21 +89,35 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'user-modal';
-      modal.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      modal.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(30,144,255,0.13);display:flex;align-items:center;justify-content:center;z-index:9999;';
       document.body.appendChild(modal);
     }
     modal.innerHTML = `
-      <div class="user-modal-content">
+      <div class="user-modal-content" style="font-family:Montserrat,sans-serif;">
         <button id="close-user-modal" class="user-modal-close">&times;</button>
-        <h3>${user ? 'Modifier' : 'Ajouter'} un client</h3>
-        <form id="user-form">
-          <label><span>Pseudo</span><input type="text" name="pseudo" value="${user?.pseudo||''}" required></label>
-          <label><span>Email</span><input type="email" name="email" value="${user?.email||''}" required></label>
-          <label><span>Type abonnement</span><input type="text" name="abonnement_type" value="${user?.abonnement_type||''}" placeholder="weekly, monthly, yearly, lifetime"></label>
-          <label><span>Date début</span><input type="date" name="abonnement_debut" value="${user?.abonnement_debut ? user.abonnement_debut.substr(0,10) : ''}"></label>
-          <label><span>Date fin</span><input type="date" name="abonnement_fin" value="${user?.abonnement_fin ? user.abonnement_fin.substr(0,10) : ''}"></label>
-          <label class="user-modal-switch"><span>Actif</span><input type="checkbox" name="abonnement_actif" ${user?.abonnement_actif ? 'checked' : ''}></label>
-          ${user ? '' : '<label><span>Mot de passe</span><input type="password" name="password" required></label>'}
+        <h3 style="color:#1e90ff;margin-bottom:8px;">${user ? 'Modifier' : 'Ajouter'} un client</h3>
+        <hr style="border:none;border-top:1.5px solid #e0e7ef;margin-bottom:18px;">
+        <form id="user-form" autocomplete="off">
+          <label><span>Pseudo</span><input type="text" name="pseudo" value="${user?.pseudo||''}" required placeholder="Pseudo"></label>
+          <label><span>Email</span><input type="email" name="email" value="${user?.email||''}" required placeholder="Email"></label>
+          <label><span>Type abonnement</span>
+            <select name="abonnement_type" style="padding:7px 10px;border-radius:6px;border:1px solid #d0d0d0;font-size:1em;">
+              <option value="">-</option>
+              <option value="weekly" ${user?.abonnement_type==='weekly'?'selected':''}>Hebdomadaire</option>
+              <option value="monthly" ${user?.abonnement_type==='monthly'?'selected':''}>Mensuel</option>
+              <option value="yearly" ${user?.abonnement_type==='yearly'?'selected':''}>Annuel</option>
+              <option value="lifetime" ${user?.abonnement_type==='lifetime'?'selected':''}>À vie</option>
+            </select>
+          </label>
+          <div style="display:flex;gap:12px;">
+            <label style="flex:1;"><span>Date début</span><input type="date" name="abonnement_debut" value="${user?.abonnement_debut ? user.abonnement_debut.substr(0,10) : ''}"></label>
+            <label style="flex:1;"><span>Date fin</span><input type="date" name="abonnement_fin" value="${user?.abonnement_fin ? user.abonnement_fin.substr(0,10) : ''}"></label>
+          </div>
+          <label class="user-modal-switch" style="margin-top:10px;">
+            <input type="checkbox" name="abonnement_actif" id="abonnement_actif" ${user?.abonnement_actif ? 'checked' : ''}>
+            <span class="switch-label">Abonnement actif</span>
+          </label>
+          ${user ? '' : '<label><span>Mot de passe</span><input type="password" name="password" required placeholder="Mot de passe"></label>'}
           <div class="user-modal-actions">
             <button type="submit" class="user-modal-save">Enregistrer</button>
             ${user ? '<button type="button" id="delete-user-btn" class="user-modal-delete">Supprimer</button>' : ''}
