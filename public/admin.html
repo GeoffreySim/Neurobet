@@ -163,8 +163,30 @@
             <h3>Revenus totaux</h3>
             <p id="total-revenue">0€</p>
           </div>
+          <div class="admin-stat-card">
+            <h3>Visites aujourd'hui</h3>
+            <p id="visits_today">0</p>
+          </div>
+          <div class="admin-stat-card">
+            <h3>Visites ce mois-ci</h3>
+            <p id="visits_month">0</p>
+          </div>
+          <div class="admin-stat-card">
+            <h3>Transactions</h3>
+            <p id="transactions">0</p>
+          </div>
         </div>
         <div class="admin-charts">
+          <div class="admin-chart-container">
+            <h4>Visites par jour (30 derniers jours)</h4>
+            <div id="bar-chart" class="bar-chart"></div>
+            <table style="margin-top:10px;">
+              <thead>
+                <tr><th>Date</th><th>Visites</th></tr>
+              </thead>
+              <tbody id="visits_by_day"></tbody>
+            </table>
+          </div>
           <div class="admin-chart-container">
             <h4>Statistiques de durée d'abonnement</h4>
             <canvas id="chart-duration"></canvas>

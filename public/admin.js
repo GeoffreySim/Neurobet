@@ -336,3 +336,53 @@ function updatePerformanceStats() {
   document.getElementById('foot-performance').textContent = footPerf + '%';
   document.getElementById('tennis-performance').textContent = tennisPerf + '%';
 } 
+
+async function loadAdminStats() {
+  try {
+    const res = await fetch('/admin/api/stats');
+    const data = await res.json();
+    document.getElementById('visits_today').textContent = data.visits_today || '0';
+    document.getElementById('visits_month').textContent = data.visits_month || '0';
+    document.getElementById('transactions').textContent = data.transactions || '0';
+    // Pour les clients inscrits
+    document.getElementById('total-clients').textContent = data.users || '0';
+    // Bar chart et tableau
+    let tbody = document.getElementById('visits_by_day');
+    let barChart = document.getElementById('bar-chart');
+    if (tbody && barChart) {
+      tbody.innerHTML = '';
+      barChart.innerHTML = '';
+      if (!data.visits_by_day || data.visits_by_day.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="nodata">Aucune donnée</td></tr>';
+        barChart.innerHTML = '<div class="nodata">Aucune donnée à afficher</div>';
+      } else {
+        let max = Math.max(...data.visits_by_day.map(r => +r.count));
+        data.visits_by_day.forEach(row => {
+          let tr = document.createElement('tr');
+          tr.innerHTML = `<td>${row.day}</td><td>${row.count}</td>`;
+          tbody.appendChild(tr);
+          let bar = document.createElement('div');
+          bar.className = 'bar';
+          bar.style.width = (max ? (row.count / max * 100) : 0) + '%';
+          bar.textContent = `${row.day} : ${row.count}`;
+          barChart.appendChild(bar);
+        });
+      }
+    }
+  } catch (e) {
+    document.getElementById('visits_today').textContent = 'Erreur';
+    document.getElementById('visits_month').textContent = 'Erreur';
+    document.getElementById('transactions').textContent = 'Erreur';
+    document.getElementById('total-clients').textContent = 'Erreur';
+    let tbody = document.getElementById('visits_by_day');
+    let barChart = document.getElementById('bar-chart');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="2" class="nodata">Erreur</td></tr>';
+    if (barChart) barChart.innerHTML = '<div class="nodata">Erreur lors du chargement des statistiques</div>';
+  }
+}
+
+// Appelle le chargement des stats quand on affiche la section Analyse
+const analyseSidebar = document.querySelector('.sidebar-link[data-section="analyse"]');
+if (analyseSidebar) {
+  analyseSidebar.addEventListener('click', loadAdminStats);
+} 
