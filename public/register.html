@@ -20,32 +20,26 @@
     <div class="auth-link">Déjà inscrit ? <a href="login.html">Connexion</a></div>
   </div>
   <script>
-    document.getElementById('registerForm').onsubmit = function(e) {
+    document.getElementById('registerForm').onsubmit = async function(e) {
       e.preventDefault();
-      
       const pseudo = document.getElementById('pseudo').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
-      
-      const users = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
-      
-      if (users.some(user => user.email === email)) {
-        alert('Cet email est déjà utilisé');
-        return;
+      try {
+        const res = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pseudo, email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = 'dashboard.html';
+        } else {
+          alert(data.error || 'Erreur lors de l\'inscription');
+        }
+      } catch (err) {
+        alert('Erreur serveur');
       }
-      
-      const newUser = {
-        pseudo: pseudo,
-        email: email,
-        password: password,
-        date: new Date().toISOString()
-      };
-      
-      users.push(newUser);
-      localStorage.setItem('neurobet_users', JSON.stringify(users));
-      localStorage.setItem('neurobet_current_user', JSON.stringify(newUser));
-      
-      window.location.href = 'payment.html';
     };
   </script>
 </body>
