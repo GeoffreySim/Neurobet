@@ -3,21 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <title>Statistiques du site</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; color: #222; margin: 0; padding: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h2 { text-align: center; color: #2a5d9f; }
+    ul { list-style: none; padding: 0; }
+    ul li { margin: 12px 0; font-size: 1.1em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; background: #fafbfc; }
+    th, td { padding: 8px 10px; border: 1px solid #e0e0e0; text-align: center; }
+    th { background: #eaf1fb; }
+    .bar-chart { margin-top: 24px; }
+    .bar { background: #2a5d9f; color: #fff; height: 24px; line-height: 24px; margin: 4px 0; border-radius: 4px; text-align: right; padding-right: 8px; font-size: 0.95em; transition: width 0.5s; }
+    .nodata { color: #888; text-align: center; margin: 24px 0; }
+  </style>
 </head>
 <body>
-  <h2>Statistiques du site</h2>
-  <ul>
-    <li>Nombre de visites : <span id="visits"></span></li>
-    <li>Nombre d'inscriptions : <span id="users"></span></li>
-    <li>Nombre de transactions : <span id="transactions"></span></li>
-  </ul>
+  <div class="container">
+    <h2>Statistiques du site</h2>
+    <ul>
+      <li>Visites aujourd'hui : <span id="visits_today">...</span></li>
+      <li>Visites ce mois-ci : <span id="visits_month">...</span></li>
+      <li>Nombre d'inscriptions : <span id="users">...</span></li>
+      <li>Nombre de transactions : <span id="transactions">...</span></li>
+    </ul>
+    <h3>Visites par jour (30 derniers jours)</h3>
+    <div id="bar-chart" class="bar-chart"></div>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Visites</th></tr>
+      </thead>
+      <tbody id="visits_by_day"></tbody>
+    </table>
+  </div>
   <script>
     fetch('/admin/api/stats')
       .then(res => res.json())
       .then(data => {
-        document.getElementById('visits').textContent = data.visits;
+        document.getElementById('visits_today').textContent = data.visits_today;
+        document.getElementById('visits_month').textContent = data.visits_month;
         document.getElementById('users').textContent = data.users;
         document.getElementById('transactions').textContent = data.transactions;
+        let tbody = document.getElementById('visits_by_day');
+        let barChart = document.getElementById('bar-chart');
+        tbody.innerHTML = '';
+        barChart.innerHTML = '';
+        if (!data.visits_by_day || data.visits_by_day.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="2" class="nodata">Aucune donnée</td></tr>';
+          barChart.innerHTML = '<div class="nodata">Aucune donnée à afficher</div>';
+        } else {
+          // Tableau
+          let max = Math.max(...data.visits_by_day.map(r => +r.count));
+          data.visits_by_day.forEach(row => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.day}</td><td>${row.count}</td>`;
+            tbody.appendChild(tr);
+            // Bar chart
+            let bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.style.width = (max ? (row.count / max * 100) : 0) + '%';
+            bar.textContent = `${row.day} : ${row.count}`;
+            barChart.appendChild(bar);
+          });
+        }
+      })
+      .catch(() => {
+        document.getElementById('visits_today').textContent = 'Erreur';
+        document.getElementById('visits_month').textContent = 'Erreur';
+        document.getElementById('users').textContent = 'Erreur';
+        document.getElementById('transactions').textContent = 'Erreur';
+        document.getElementById('bar-chart').innerHTML = '<div class="nodata">Erreur lors du chargement des statistiques</div>';
+        document.getElementById('visits_by_day').innerHTML = '<tr><td colspan="2" class="nodata">Erreur</td></tr>';
       });
   </script>
 </body>
