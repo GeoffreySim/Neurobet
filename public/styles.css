@@ -2013,20 +2013,20 @@ label {
   text-decoration: none !important;
 } 
 /* Dashboard admin moderne */
-.dashboard-stats-grid, .dashboard-stats-grid-revenus {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+.dashboard-stats-grid,
+.dashboard-stats-grid-revenus {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-bottom: 32px;
-  justify-content: center;
+  justify-items: stretch;
   align-items: stretch;
 }
 @media (max-width: 900px) {
-  .dashboard-stats-grid, .dashboard-stats-grid-revenus {
-    flex-direction: column;
+  .dashboard-stats-grid,
+  .dashboard-stats-grid-revenus {
+    grid-template-columns: 1fr;
     gap: 16px;
-    align-items: center;
   }
 }
 .dashboard-stat-tile {
