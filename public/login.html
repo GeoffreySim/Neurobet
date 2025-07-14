@@ -19,18 +19,24 @@
     <div class="auth-link">Pas encore de compte ? <a href="register.html">Inscription</a></div>
   </div>
   <script>
-    document.getElementById('loginForm').onsubmit = function(e) {
+    document.getElementById('loginForm').onsubmit = async function(e) {
       e.preventDefault();
-      const form = e.target;
-      const email = form.email.value;
-      const password = form.password.value;
-      let users = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
-      const user = users.find(u => u.email === email && u.password === password);
-      if (user) {
-        localStorage.setItem('neurobet_current_user', JSON.stringify({ pseudo: user.pseudo, email: user.email }));
-        window.location.href = 'dashboard.html';
-      } else {
-        alert('Identifiants incorrects');
+      const email = this.email.value;
+      const password = this.password.value;
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = 'dashboard.html';
+        } else {
+          alert(data.error || 'Erreur lors de la connexion');
+        }
+      } catch (err) {
+        alert('Erreur serveur');
       }
     };
   </script>

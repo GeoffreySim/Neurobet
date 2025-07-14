@@ -5,6 +5,7 @@ const session = require('express-session');
 const paypalSdk = require('@paypal/checkout-server-sdk');
 const { client: paypalClient } = require('./config/paypal');
 const pool = require('./db');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,62 @@ app.use(express.json());
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 // Routes API paiement
 app.use('/api/payment', paymentRoutes);
+
+// Route d'inscription (API)
+app.post('/register', async (req, res) => {
+  const { pseudo, email, password } = req.body;
+  if (!pseudo || !email || !password) {
+    return res.status(400).json({ error: 'Champs manquants' });
+  }
+  try {
+    // Vérifie si l'email existe déjà
+    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (exists.rows.length > 0) {
+      return res.status(409).json({ error: 'Email déjà utilisé' });
+    }
+    // Hash du mot de passe
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query(
+      'INSERT INTO users (pseudo, email, password, date_inscription, abonnement_actif) VALUES ($1, $2, $3, NOW(), false)',
+      [pseudo, email, hash]
+    );
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Erreur inscription:', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Route de connexion (API)
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Champs manquants' });
+  }
+  try {
+    const result = await pool.query('SELECT id, pseudo, email, password, abonnement_actif FROM users WHERE email = $1', [email]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+    }
+    const user = result.rows[0];
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+    }
+    // Crée la session utilisateur côté serveur
+    req.session.user = {
+      id: user.id,
+      pseudo: user.pseudo,
+      email: user.email,
+      abonnement_actif: user.abonnement_actif
+    };
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Erreur connexion:', e);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 // Rediriger / vers index.html
 app.get('/', async (req, res) => {
   console.log('Route / appelée');
