@@ -56,7 +56,37 @@ document.addEventListener('DOMContentLoaded', function() {
   // Par défaut, seule la première section est visible
   sections.forEach((sec, i) => sec.style.display = i === 0 ? 'block' : 'none');
 
-  // Affichage des clients inscrits dans l'admin
+  // Affichage des clients inscrits dans l'admin (depuis la base)
+  async function renderClients() {
+    const tbody = document.getElementById('clientsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7">Chargement...</td></tr>';
+    try {
+      const res = await fetch('/admin/api/clients');
+      const data = await res.json();
+      tbody.innerHTML = '';
+      if (!data.clients || data.clients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">Aucun client inscrit</td></tr>';
+        return;
+      }
+      data.clients.forEach(client => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${client.pseudo || ''}</td>
+          <td>${client.email}</td>
+          <td>${client.abonnement_type || '-'}</td>
+          <td>${client.abonnement_actif ? 'Oui' : 'Non'}</td>
+          <td>${client.abonnement_debut ? new Date(client.abonnement_debut).toLocaleDateString() : '-'}</td>
+          <td>${client.abonnement_fin ? new Date(client.abonnement_fin).toLocaleDateString() : (client.abonnement_type === 'lifetime' ? 'À vie' : '-')}</td>
+          <td>${client.date_inscription ? new Date(client.date_inscription).toLocaleDateString() : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="7">Erreur chargement clients</td></tr>';
+    }
+  }
+  // Appel lors du clic sur l'onglet clients
   const clientsLink = document.querySelector('.sidebar-link[data-section="clients"]');
   if (clientsLink) {
     clientsLink.addEventListener('click', renderClients);
@@ -203,21 +233,6 @@ if (document.getElementById('pronoForm')) {
     setTimeout(renderAdminPronos, 100);
   });
 }
-
-// Affichage des clients inscrits dans l'admin
-function renderClients() {
-  const clients = JSON.parse(localStorage.getItem('neurobet_users') || '[]');
-  const tbody = document.getElementById('clientsTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  // Afficher du plus récent au plus ancien
-  clients.slice().reverse().forEach(client => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td>${client.prix || ''}</td><td>${client.paymentMethod || ''}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-// On n'appelle plus renderClients au chargement, seulement lors du clic sur la catégorie 
 
 // Fonction pour calculer les stats par sport
 function calculateSportStats() {

@@ -219,6 +219,15 @@ app.get('/admin/api/stats', requireAdmin, async (req, res) => {
   }
 });
 
+app.get('/admin/api/clients', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, pseudo, email, abonnement_actif, abonnement_type, abonnement_debut, abonnement_fin, date_inscription FROM users ORDER BY date_inscription DESC');
+    res.json({ clients: result.rows });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur chargement clients' });
+  }
+});
+
 // Middleware pour protéger l'accès aux pronos (clients payants uniquement, durée prise en compte)
 async function requirePaidUser(req, res, next) {
   if (!req.session || !req.session.user || !req.session.user.email) {
