@@ -133,16 +133,15 @@
       <section class="pro-card" id="section-clients" style="display:none;">
         <h3><span class="prono-icon">👥</span> Clients inscrits</h3>
         <div class="clients-list-container">
-          <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
-            <button id="add-client-btn" class="btn-auth" style="margin:0 0 8px 0;">+ Ajouter un client</button>
-          </div>
           <table class="prono-table">
             <thead>
               <tr>
                 <th>Pseudo</th>
                 <th>Email</th>
                 <th>Durée abonnement</th>
-                <th></th>
+                <th>Prix payé</th>
+                <th>Moyen de paiement</th>
+                <th>Supprimer</th>
               </tr>
             </thead>
             <tbody id="clientsTableBody">
@@ -199,7 +198,7 @@
       </section>
 
       <div id="section-dashboard" class="admin-section">
-        <a href="admin-stats.html">Voir les statistiques du site</a>
+        
       </div>
     </div>
   </div>
@@ -440,7 +439,7 @@
       // Afficher du plus récent au plus ancien
       clients.slice().reverse().forEach((client, idx) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td><button class='delete-client-btn' data-idx='${clients.length-1-idx}' style='color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;' title='Supprimer'>&#10006;</button></td>`;
+        tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td>${client.prix || ''}</td><td>${client.paymentMethod || ''}</td><td><button class='delete-client-btn' data-idx='${clients.length-1-idx}' style='color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;' title='Supprimer'>&#10006;</button></td>`;
         tbody.appendChild(tr);
       });
       // Ajout du listener pour suppression
