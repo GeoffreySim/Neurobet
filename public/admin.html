@@ -131,7 +131,10 @@
 
       <!-- Section Clients -->
       <section class="pro-card" id="section-clients" style="display:none;">
-        <h3><span class="prono-icon">👥</span> Clients inscrits</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <h3 style="margin:0;display:flex;align-items:center;"><span class="prono-icon">👥</span> Clients inscrits</h3>
+          <button id="add-client-btn-top" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:9px 22px;font-weight:600;cursor:pointer;font-size:1em;">+ Ajouter un client</button>
+        </div>
         <div class="clients-list-container">
           <table class="prono-table">
             <thead>
@@ -139,9 +142,7 @@
                 <th>Pseudo</th>
                 <th>Email</th>
                 <th>Durée abonnement</th>
-                <th>Prix payé</th>
-                <th>Moyen de paiement</th>
-                <th>Supprimer</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="clientsTableBody">
@@ -439,7 +440,7 @@
       // Afficher du plus récent au plus ancien
       clients.slice().reverse().forEach((client, idx) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td>${client.prix || ''}</td><td>${client.paymentMethod || ''}</td><td><button class='delete-client-btn' data-idx='${clients.length-1-idx}' style='color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;' title='Supprimer'>&#10006;</button></td>`;
+        tr.innerHTML = `<td>${client.pseudo || ''}</td><td>${client.email}</td><td>${client.abo || ''}</td><td><button class='delete-client-btn' data-idx='${clients.length-1-idx}' style='color:#ff4d4d;font-size:1.2em;background:none;border:none;cursor:pointer;' title='Supprimer'>&#10006;</button></td>`;
         tbody.appendChild(tr);
       });
       // Ajout du listener pour suppression

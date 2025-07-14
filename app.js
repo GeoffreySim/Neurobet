@@ -297,21 +297,23 @@ async function requirePaidUser(req, res, next) {
     );
     const user = result.rows[0];
     const now = new Date();
-    if (
-      user &&
-      user.abonnement_actif &&
-      (
-        user.abonnement_type === 'lifetime' ||
-        (user.abonnement_fin && now < new Date(user.abonnement_fin))
-      )
-    ) {
+    let isActive = false;
+    if (user) {
+      if (user.abonnement_type === 'lifetime' && user.abonnement_actif) {
+        isActive = true;
+      } else if (user.abonnement_fin) {
+        const fin = new Date(user.abonnement_fin);
+        if (user.abonnement_actif && now < fin) {
+          isActive = true;
+        } else if (now >= fin && user.abonnement_actif) {
+          // Abonnement expiré, on désactive
+          await pool.query('UPDATE users SET abonnement_actif = false WHERE email = $1', [req.session.user.email]);
+        }
+      }
+    }
+    if (isActive) {
       return next();
     }
-    // Si expiré ou inactif, on désactive l'abonnement et redirige
-    await pool.query(
-      'UPDATE users SET abonnement_actif = false WHERE email = $1',
-      [req.session.user.email]
-    );
   } catch (e) {
     console.error('Erreur vérification abonnement:', e);
   }

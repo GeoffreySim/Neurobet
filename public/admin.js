@@ -247,6 +247,11 @@ document.addEventListener('DOMContentLoaded', function() {
     clientsLink.addEventListener('click', renderClients);
   }
 
+  const addClientBtnTop = document.getElementById('add-client-btn-top');
+  if (addClientBtnTop) {
+    addClientBtnTop.onclick = () => showUserPopup(null);
+  }
+
   // Ajouter l'appel à calculateSportStats lors du clic sur l'onglet stats
   document.querySelector('.sidebar-link[data-section="stats"]').addEventListener('click', function() {
     calculateSportStats();
