@@ -9,6 +9,21 @@ const pool = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Création automatique de la table site_visits si elle n'existe pas
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS site_visits (
+        id SERIAL PRIMARY KEY,
+        visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('Table site_visits vérifiée/créée avec succès.');
+  } catch (e) {
+    console.error('Erreur lors de la création de la table site_visits :', e.message);
+  }
+})();
+
 // Routes de succès/annulation Stripe AVANT le static
 app.get('/payment/success', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'payment-success.html'));
@@ -28,9 +43,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Rediriger / vers index.html
 app.get('/', async (req, res) => {
   try {
-    await pool.query('UPDATE site_counter SET visits = visits + 1 WHERE id = 1');
+    await pool.query('INSERT INTO site_visits DEFAULT VALUES');
   } catch (e) {
-    console.error('Erreur incrémentation compteur visites:', e.message);
+    console.error('Erreur enregistrement visite:', e.message);
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -94,12 +109,30 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
 app.get('/admin/api/stats', requireAdmin, async (req, res) => {
   try {
-    const pool = require('./db');
-    const visits = await pool.query('SELECT visits FROM site_counter WHERE id = 1');
+    // Visites aujourd'hui
+    const today = await pool.query(
+      `SELECT COUNT(*) FROM site_visits WHERE visited_at::date = CURRENT_DATE`
+    );
+    // Visites ce mois-ci
+    const month = await pool.query(
+      `SELECT COUNT(*) FROM site_visits WHERE date_trunc('month', visited_at) = date_trunc('month', CURRENT_DATE)`
+    );
+    // Visites par jour sur les 30 derniers jours
+    const byDay = await pool.query(
+      `SELECT visited_at::date AS day, COUNT(*) AS count
+       FROM site_visits
+       WHERE visited_at >= CURRENT_DATE - INTERVAL '30 days'
+       GROUP BY day
+       ORDER BY day DESC`
+    );
+    // Utilisateurs inscrits
     const users = await pool.query('SELECT COUNT(*) FROM users');
+    // Paiements/transactions
     const transactions = await pool.query('SELECT COUNT(*) FROM transactions');
     res.json({
-      visits: visits.rows[0].visits,
+      visits_today: today.rows[0].count,
+      visits_month: month.rows[0].count,
+      visits_by_day: byDay.rows,
       users: users.rows[0].count,
       transactions: transactions.rows[0].count
     });
