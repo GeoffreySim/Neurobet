@@ -556,8 +556,23 @@ async function loadAdminStats() {
   }
 }
 
-// Appelle le chargement des stats quand on affiche la section Analyse
+async function loadRevenusStats() {
+  try {
+    const res = await fetch('/admin/api/revenus');
+    const data = await res.json();
+    document.getElementById('revenus-transactions').textContent = data.transactions || '0';
+    document.getElementById('revenus-total').textContent = (data.total_revenue || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+  } catch (e) {
+    document.getElementById('revenus-transactions').textContent = 'Erreur';
+    document.getElementById('revenus-total').textContent = 'Erreur';
+  }
+}
+
+// Charger les stats revenus lors de l'affichage de la section analyse
 const analyseSidebar = document.querySelector('.sidebar-link[data-section="analyse"]');
 if (analyseSidebar) {
-  analyseSidebar.addEventListener('click', loadAdminStats);
+  analyseSidebar.addEventListener('click', function() {
+    loadRevenusStats();
+    loadAdminStats();
+  });
 } 

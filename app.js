@@ -285,6 +285,19 @@ app.post('/admin/api/clients/add', requireAdmin, async (req, res) => {
   }
 });
 
+// API revenus totaux et nombre de transactions
+app.get('/admin/api/revenus', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COALESCE(SUM(montant),0) AS total, COUNT(*) AS nb FROM transactions');
+    res.json({
+      total_revenue: parseFloat(result.rows[0].total),
+      transactions: parseInt(result.rows[0].nb)
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur chargement revenus' });
+  }
+});
+
 // Middleware pour protéger l'accès aux pronos (clients payants uniquement, durée prise en compte)
 async function requirePaidUser(req, res, next) {
   if (!req.session || !req.session.user || !req.session.user.email) {
