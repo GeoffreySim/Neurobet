@@ -828,7 +828,7 @@ footer {
 .dashboard-pro-main {
   display: flex;
   min-height: 100vh;
-  background: #18263a;
+  background: #101a28 !important;
 }
 .dashboard-center {
   margin-left: 240px;
@@ -837,6 +837,15 @@ footer {
   width: calc(100% - 240px);
   max-width: 1200px;
   margin-right: auto;
+}
+.dashboard-analyse-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  padding: 40px 0 60px 0;
 }
 .user-info-pro {
   background: #101926;
@@ -2087,9 +2096,10 @@ label {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  justify-items: stretch;
+  justify-items: center;
   align-items: stretch;
   margin-bottom: 36px;
+  width: 100%;
 }
 .dashboard-stat-tile {
   background: #fff;
@@ -2107,6 +2117,8 @@ label {
   font-size: 1.2em;
   position: relative;
   transition: transform 0.15s, box-shadow 0.15s;
+  width: 100%;
+  max-width: 260px;
 }
 .dashboard-stat-tile:hover {
   transform: translateY(-4px) scale(1.03);
@@ -2137,9 +2149,19 @@ label {
   .dashboard-stats-grid-6 {
     grid-template-columns: repeat(2, 1fr);
   }
+  .pro-card#section-analyse {
+    max-width: 98vw;
+    padding: 18px 4vw 32px 4vw;
+  }
 }
 @media (max-width: 700px) {
   .dashboard-stats-grid-6 {
     grid-template-columns: 1fr;
+  }
+  .dashboard-stat-tile {
+    max-width: 100%;
+  }
+  .pro-card#section-analyse {
+    padding: 8px 2vw 18px 2vw;
   }
 } 
