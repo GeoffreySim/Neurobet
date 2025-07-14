@@ -195,14 +195,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Affichage des clients inscrits dans l'admin (depuis la base)
   async function renderClients() {
+    const section = document.getElementById('section-clients') || document.getElementById('section-clients-inscrits') || document.getElementById('section-clients-list');
+    const table = document.getElementById('clientsTable');
+    const thead = document.getElementById('clientsTableHead');
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    // Bouton d'ajout
-    const addBtnTr = document.createElement('tr');
-    addBtnTr.innerHTML = `<td colspan="4"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
-    tbody.appendChild(addBtnTr);
-    document.getElementById('add-client-btn').onclick = () => showUserPopup(null);
+    // Supprimer le bouton d'ajout dans le tableau, ne garder que celui en haut à droite
+    // (Supposons que le bouton en haut à droite a l'id 'add-client-btn-top')
+    // Affichage des clients
     try {
       const res = await fetch('/admin/api/clients');
       const data = await res.json();
@@ -227,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="font-weight:600;color:#1e90ff;">${client.pseudo || ''}</td>
-          <td style="color:#22304a;">${client.email}</td>
+          <td style="color:#fff;">${client.email}</td>
           <td style="color:#7ffb72;">${duree}</td>
           <td><button class="btn-edit-user" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-weight:600;cursor:pointer;">Modifier</button></td>
         `;
