@@ -198,11 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    // Bouton d'ajout
-    const addBtnTr = document.createElement('tr');
-    addBtnTr.innerHTML = `<td colspan="4"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
-    tbody.appendChild(addBtnTr);
-    document.getElementById('add-client-btn').onclick = () => showUserPopup(null);
     try {
       const res = await fetch('/admin/api/clients');
       const data = await res.json();
@@ -228,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         tr.innerHTML = `
           <td style="font-weight:600;color:#1e90ff;">${client.pseudo || ''}</td>
-          <td style="color:#22304a;">${client.email}</td>
+          <td style="color:#22304a;font-weight:600;font-size:1.08em;">${client.email}</td>
           <td style="color:#7ffb72;">${duree}</td>
           <td><button class="btn-edit-user" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-weight:600;cursor:pointer;transition:background 0.15s;">Modifier</button></td>
         `;
@@ -240,6 +235,9 @@ document.addEventListener('DOMContentLoaded', function() {
       tr.innerHTML = '<td colspan="4">Erreur chargement clients</td>';
       tbody.appendChild(tr);
     }
+    // Gestion du bouton Ajouter en haut à droite
+    const addBtn = document.getElementById('add-client-btn');
+    if (addBtn) addBtn.onclick = () => showUserPopup(null);
   }
   // Appel lors du clic sur l'onglet clients
   const clientsLink = document.querySelector('.sidebar-link[data-section="clients"]');
