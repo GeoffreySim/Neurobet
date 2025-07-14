@@ -154,6 +154,44 @@ app.get('/admin/api/stats', requireAdmin, async (req, res) => {
   }
 });
 
+// Middleware pour protéger l'accès aux pronos (clients payants uniquement, durée prise en compte)
+async function requirePaidUser(req, res, next) {
+  if (!req.session || !req.session.user || !req.session.user.email) {
+    return res.redirect('/login.html');
+  }
+  try {
+    const result = await pool.query(
+      'SELECT abonnement_actif, abonnement_fin, abonnement_type FROM users WHERE email = $1',
+      [req.session.user.email]
+    );
+    const user = result.rows[0];
+    const now = new Date();
+    if (
+      user &&
+      user.abonnement_actif &&
+      (
+        user.abonnement_type === 'lifetime' ||
+        (user.abonnement_fin && now < new Date(user.abonnement_fin))
+      )
+    ) {
+      return next();
+    }
+    // Si expiré, on désactive l'abonnement
+    await pool.query(
+      'UPDATE users SET abonnement_actif = false WHERE email = $1',
+      [req.session.user.email]
+    );
+  } catch (e) {
+    console.error('Erreur vérification abonnement:', e);
+  }
+  res.redirect('/payment.html');
+}
+
+// Exemple : protège la page des pronos
+app.get('/pronos', requirePaidUser, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pronos.html'));
+});
+
 // Démarrer le serveur
 app.listen(PORT, () => {
   console.log(`Serveur lancé sur http://localhost:${PORT}`);
