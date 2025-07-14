@@ -10,6 +10,13 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware session placé AVANT toutes les routes
+app.use(session({
+  secret: 'votre_secret_ultra_complexe',
+  resave: false,
+  saveUninitialized: false
+}));
+
 // Création automatique de la table site_visits si elle n'existe pas
 (async () => {
   try {
@@ -126,12 +133,6 @@ app.get('/test-db', async (req, res) => {
     res.status(500).json({ success: false, error: e.message });
   }
 });
-
-app.use(session({
-  secret: 'votre_secret_ultra_complexe',
-  resave: false,
-  saveUninitialized: false
-}));
 
 // Route pour afficher la page de login admin
 app.get('/admin-login', (req, res) => {
