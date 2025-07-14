@@ -2082,27 +2082,64 @@ label {
   .dashboard-chart-block { min-width: 220px; }
   .dashboard-stats-grid { flex-direction: column; align-items: center; }
 } 
-/* Dashboard admin moderne - grille responsive */
-.dashboard-stats-grid-responsive {
+/* Dashboard admin moderne - grille mosaïque stricte */
+.dashboard-stats-grid-6 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 32px;
-  justify-items: center;
+  justify-items: stretch;
+  align-items: stretch;
   margin-bottom: 36px;
 }
 .dashboard-stat-tile {
-  width: 100%;
-  max-width: 260px;
-  min-height: 130px;
-  box-sizing: border-box;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(45,225,194,0.10), 0 1.5px 8px rgba(0,0,0,0.07);
+  padding: 32px 28px;
+  min-width: 0;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  color: #222;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2em;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-@media (max-width: 900px) {
-  .dashboard-stats-grid-responsive {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 18px;
+.dashboard-stat-tile:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(45,225,194,0.18), 0 2px 12px rgba(0,0,0,0.10);
+}
+.tile-icon {
+  font-size: 2.2em;
+  margin-bottom: 8px;
+}
+.tile-label {
+  font-size: 1em;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+.tile-value {
+  font-size: 2.1em;
+  font-weight: bold;
+  margin-top: 6px;
+}
+.tile-visits-today { background: linear-gradient(90deg,#f8fafc 60%,#e0f7fa 100%); }
+.tile-visits-month { background: linear-gradient(90deg,#e0f7fa 60%,#f8fafc 100%); }
+.tile-users { background: linear-gradient(90deg,#fff3e0 60%,#ffe0b2 100%); }
+.tile-transactions { background: linear-gradient(90deg,#e8f5e9 60%,#b9f6ca 100%); }
+.tile-revenue { background: linear-gradient(90deg,#fffde7 60%,#fff9c4 100%); }
+.tile-support { background: linear-gradient(90deg,#ece9f7 60%,#e3f2fd 100%); }
+
+@media (max-width: 1100px) {
+  .dashboard-stats-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .dashboard-stat-tile {
-    max-width: 100%;
-    min-width: 0;
+}
+@media (max-width: 700px) {
+  .dashboard-stats-grid-6 {
+    grid-template-columns: 1fr;
   }
 } 
