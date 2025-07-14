@@ -55,7 +55,21 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           `UPDATE users SET abonnement_actif = true, abonnement_type = $1, abonnement_debut = $2, abonnement_fin = $3 WHERE email = $4`,
           [plan, debut, fin, email]
         );
-        console.log(`Abonnement activé pour ${email} (${plan}) du ${debut} au ${fin}`);
+        // AJOUT : insertion dans transactions
+        await require('../db').query(
+          `INSERT INTO transactions (user_id, email, montant, devise, abonnement_type, payment_method, payment_id, created_at)
+           VALUES (
+             (SELECT id FROM users WHERE email = $1),
+             $1,
+             $2,
+             $3,
+             $4,
+             'stripe',
+             $5,
+             NOW()
+           )`,
+          [email, session.amount_total ? session.amount_total / 100 : 0, session.currency || 'EUR', plan, session.id]
+        );
       } catch (e) {
         console.error('Erreur lors de l’activation abonnement:', e);
       }
