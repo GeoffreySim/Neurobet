@@ -195,8 +195,8 @@
       <section class="pro-card" id="section-revenus" style="display:none;">
         <h3><span class="prono-icon">💰</span> Revenus</h3>
         
-        <!-- Statistiques générales -->
-        <div class="dashboard-stats-grid dashboard-stats-grid-revenus revenus-center" style="margin-top:12px;gap:32px;justify-content:center;">
+        <!-- Statistiques générales et par période (2 lignes de 3 tuiles) -->
+        <div class="dashboard-stats-grid dashboard-stats-grid-revenus" style="margin-top:12px;gap:32px;">
           <div class="dashboard-stat-tile tile-transactions" style="background:linear-gradient(90deg,#7ffb72 60%,#00e676 100%);color:#222;min-width:220px;">
             <div class="tile-icon" style="font-size:2.5em;">💳</div>
             <div class="tile-label" style="font-size:1.1em;">Transactions</div>
@@ -207,31 +207,25 @@
             <div class="tile-label" style="font-size:1.1em;">Revenus totaux</div>
             <div class="tile-value" id="revenus-total" style="font-size:2.5em;font-weight:800;">0&nbsp;€</div>
           </div>
-        </div>
-
-        <!-- Statistiques par période -->
-        <div class="revenus-period-stats" style="margin-bottom:32px;">
-          <div class="dashboard-stats-grid" style="gap:16px;justify-content:center;">
-            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#1e90ff 60%,#00e6d8 100%);color:#222;min-width:180px;">
-              <div class="tile-icon">📅</div>
-              <div class="tile-label">Aujourd'hui</div>
-              <div class="tile-value" id="revenus-today">0&nbsp;€</div>
-            </div>
-            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#00e6d8 60%,#1e90ff 100%);color:#222;min-width:180px;">
-              <div class="tile-icon">📊</div>
-              <div class="tile-label">Cette semaine</div>
-              <div class="tile-value" id="revenus-week">0&nbsp;€</div>
-            </div>
-            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffb347 60%,#ffcc80 100%);color:#222;min-width:180px;">
-              <div class="tile-icon">📈</div>
-              <div class="tile-label">Ce mois</div>
-              <div class="tile-value" id="revenus-month">0&nbsp;€</div>
-            </div>
-            <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffcc80 60%,#ffb347 100%);color:#222;min-width:180px;">
-              <div class="tile-icon">📊</div>
-              <div class="tile-label">Cette année</div>
-              <div class="tile-value" id="revenus-year">0&nbsp;€</div>
-            </div>
+          <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#1e90ff 60%,#00e6d8 100%);color:#222;min-width:180px;">
+            <div class="tile-icon">📅</div>
+            <div class="tile-label">Aujourd'hui</div>
+            <div class="tile-value" id="revenus-today">0&nbsp;€</div>
+          </div>
+          <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#00e6d8 60%,#1e90ff 100%);color:#222;min-width:180px;">
+            <div class="tile-icon">📊</div>
+            <div class="tile-label">Cette semaine</div>
+            <div class="tile-value" id="revenus-week">0&nbsp;€</div>
+          </div>
+          <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffb347 60%,#ffcc80 100%);color:#222;min-width:180px;">
+            <div class="tile-icon">📈</div>
+            <div class="tile-label">Ce mois</div>
+            <div class="tile-value" id="revenus-month">0&nbsp;€</div>
+          </div>
+          <div class="dashboard-stat-tile" style="background:linear-gradient(90deg,#ffcc80 60%,#ffb347 100%);color:#222;min-width:180px;">
+            <div class="tile-icon">📊</div>
+            <div class="tile-label">Cette année</div>
+            <div class="tile-value" id="revenus-year">0&nbsp;€</div>
           </div>
         </div>
 
