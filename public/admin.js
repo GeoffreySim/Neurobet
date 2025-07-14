@@ -209,7 +209,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       data.clients.forEach(client => {
         const tr = document.createElement('tr');
-        // Calcul durée abonnement
         let duree = '-';
         if (client.abonnement_type === 'lifetime') {
           duree = 'À vie';
@@ -234,10 +233,15 @@ document.addEventListener('DOMContentLoaded', function() {
       const tr = document.createElement('tr');
       tr.innerHTML = '<td colspan="4">Erreur chargement clients</td>';
       tbody.appendChild(tr);
+      console.error('Erreur chargement clients', e);
     }
     // Gestion du bouton Ajouter en haut à droite
-    const addBtn = document.getElementById('add-client-btn');
-    if (addBtn) addBtn.onclick = () => showUserPopup(null);
+    try {
+      const addBtn = document.getElementById('add-client-btn');
+      if (addBtn) addBtn.onclick = () => showUserPopup(null);
+    } catch (err) {
+      console.error('Erreur gestion bouton Ajouter client', err);
+    }
   }
   // Appel lors du clic sur l'onglet clients
   const clientsLink = document.querySelector('.sidebar-link[data-section="clients"]');
