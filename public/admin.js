@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = '';
     // Bouton d'ajout
     const addBtnTr = document.createElement('tr');
-    addBtnTr.innerHTML = `<td colspan="8"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
+    addBtnTr.innerHTML = `<td colspan="4"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
     tbody.appendChild(addBtnTr);
     document.getElementById('add-client-btn').onclick = () => showUserPopup(null);
     try {
@@ -208,28 +208,36 @@ document.addEventListener('DOMContentLoaded', function() {
       const data = await res.json();
       if (!data.clients || data.clients.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="8">Aucun client inscrit</td>';
+        tr.innerHTML = '<td colspan="4">Aucun client inscrit</td>';
         tbody.appendChild(tr);
         return;
       }
       data.clients.forEach(client => {
         const tr = document.createElement('tr');
+        // Calcul durée abonnement
+        let duree = '-';
+        if (client.abonnement_type === 'lifetime') {
+          duree = 'À vie';
+        } else if (client.abonnement_debut && client.abonnement_fin) {
+          const debut = new Date(client.abonnement_debut);
+          const fin = new Date(client.abonnement_fin);
+          const diff = Math.ceil((fin - debut) / (1000 * 60 * 60 * 24));
+          duree = diff > 1 ? diff + ' jours' : '1 jour';
+        } else if (client.abonnement_fin) {
+          duree = 'Jusqu\'au ' + new Date(client.abonnement_fin).toLocaleDateString();
+        }
         tr.innerHTML = `
-          <td>${client.pseudo || ''}</td>
-          <td>${client.email}</td>
-          <td>${client.abonnement_type || '-'}</td>
-          <td>${client.abonnement_actif ? 'Oui' : 'Non'}</td>
-          <td>${client.abonnement_debut ? new Date(client.abonnement_debut).toLocaleDateString() : '-'}</td>
-          <td>${client.abonnement_fin ? new Date(client.abonnement_fin).toLocaleDateString() : (client.abonnement_type === 'lifetime' ? 'À vie' : '-')}</td>
-          <td>${client.date_inscription ? new Date(client.date_inscription).toLocaleDateString() : '-'}</td>
-          <td><button class="btn-edit-user">Modifier</button></td>
+          <td style="font-weight:600;color:#1e90ff;">${client.pseudo || ''}</td>
+          <td style="color:#22304a;">${client.email}</td>
+          <td style="color:#7ffb72;">${duree}</td>
+          <td><button class="btn-edit-user" style="background:#1e90ff;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-weight:600;cursor:pointer;transition:background 0.15s;">Modifier</button></td>
         `;
         tr.querySelector('.btn-edit-user').onclick = () => showUserPopup(client);
         tbody.appendChild(tr);
       });
     } catch (e) {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td colspan="8">Erreur chargement clients</td>';
+      tr.innerHTML = '<td colspan="4">Erreur chargement clients</td>';
       tbody.appendChild(tr);
     }
   }
