@@ -882,10 +882,9 @@ footer {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  transition: box-shadow 0.2s;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
 }
 .pro-card h3 {
   color: #2de1c2;
@@ -2021,6 +2020,8 @@ label {
   margin-bottom: 32px;
   justify-items: stretch;
   align-items: stretch;
+  width: 100%;
+  max-width: none;
 }
 @media (max-width: 900px) {
   .dashboard-stats-grid,
