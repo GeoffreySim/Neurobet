@@ -2013,12 +2013,21 @@ label {
   text-decoration: none !important;
 } 
 /* Dashboard admin moderne */
-.dashboard-stats-grid {
+.dashboard-stats-grid, .dashboard-stats-grid-revenus {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 32px;
   justify-content: center;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .dashboard-stats-grid, .dashboard-stats-grid-revenus {
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
 }
 .dashboard-stat-tile {
   background: #181f2a;
