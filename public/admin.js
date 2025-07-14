@@ -517,6 +517,11 @@ async function loadAdminStats() {
     const res = await fetch('/admin/api/stats');
     const data = await res.json();
     
+    // Debug: afficher les informations de debug dans la console
+    if (data.debug) {
+      console.log('Debug visites:', data.debug);
+    }
+    
     // Vérifier que les éléments existent avant de les modifier
     const visitsTodayEl = document.getElementById('visits_today');
     const visitsMonthEl = document.getElementById('visits_month');

@@ -187,34 +187,64 @@ app.post('/api/paypal/create-order', async (req, res) => {
 
 app.get('/admin/api/stats', requireAdmin, async (req, res) => {
   try {
-    // Visites aujourd'hui
+    // Visites aujourd'hui - amélioration avec fuseau horaire explicite
     const today = await pool.query(
-      `SELECT COUNT(*) FROM site_visits WHERE visited_at::date = CURRENT_DATE`
+      `SELECT COUNT(*) FROM site_visits 
+       WHERE DATE(visited_at AT TIME ZONE 'Europe/Paris') = CURRENT_DATE`
     );
-    // Visites ce mois-ci
+    
+    // Visites ce mois-ci - amélioration avec fuseau horaire explicite
     const month = await pool.query(
-      `SELECT COUNT(*) FROM site_visits WHERE date_trunc('month', visited_at) = date_trunc('month', CURRENT_DATE)`
+      `SELECT COUNT(*) FROM site_visits 
+       WHERE DATE_TRUNC('month', visited_at AT TIME ZONE 'Europe/Paris') = DATE_TRUNC('month', CURRENT_DATE)`
     );
-    // Visites par jour sur les 30 derniers jours
+    
+    // Visites par jour sur les 30 derniers jours - amélioration avec fuseau horaire explicite
     const byDay = await pool.query(
-      `SELECT visited_at::date AS day, COUNT(*) AS count
+      `SELECT DATE(visited_at AT TIME ZONE 'Europe/Paris') AS day, COUNT(*) AS count
        FROM site_visits
        WHERE visited_at >= CURRENT_DATE - INTERVAL '30 days'
        GROUP BY day
        ORDER BY day DESC`
     );
+    
+    // Debug: afficher la date actuelle et quelques visites récentes
+    const debugInfo = await pool.query(
+      `SELECT CURRENT_DATE as current_date, 
+              COUNT(*) as total_visits,
+              MAX(visited_at) as last_visit,
+              MIN(visited_at) as first_visit
+       FROM site_visits`
+    );
+    
     // Utilisateurs inscrits
     const users = await pool.query('SELECT COUNT(*) FROM users');
     // Paiements/transactions
     const transactions = await pool.query('SELECT COUNT(*) FROM transactions');
+    
+    console.log('Debug stats:', {
+      current_date: debugInfo.rows[0].current_date,
+      total_visits: debugInfo.rows[0].total_visits,
+      last_visit: debugInfo.rows[0].last_visit,
+      first_visit: debugInfo.rows[0].first_visit,
+      visits_today: today.rows[0].count,
+      visits_month: month.rows[0].count
+    });
+    
     res.json({
       visits_today: today.rows[0].count,
       visits_month: month.rows[0].count,
       visits_by_day: byDay.rows,
       users: users.rows[0].count,
-      transactions: transactions.rows[0].count
+      transactions: transactions.rows[0].count,
+      debug: {
+        current_date: debugInfo.rows[0].current_date,
+        total_visits: debugInfo.rows[0].total_visits,
+        last_visit: debugInfo.rows[0].last_visit
+      }
     });
   } catch (err) {
+    console.error('Erreur stats:', err);
     res.status(500).json({ error: err.message });
   }
 });
