@@ -6,7 +6,6 @@
   <title>NeuroBet - Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="dashboard-pro">
   <div class="dashboard-pro-main">
@@ -154,38 +153,46 @@
 
       <!-- Section Analyse -->
       <section class="pro-card" id="section-analyse" style="display:none;">
-        <div class="dashboard-analyse-wrapper">
-          <div class="dashboard-stats-grid-6">
-            <div class="dashboard-stat-tile tile1">
-              <i class="fa-solid fa-eye"></i>
-              <div class="tile-label">Visites aujourd'hui</div>
-              <div class="tile-value" id="visits_today">0</div>
-            </div>
-            <div class="dashboard-stat-tile tile2">
-              <i class="fa-solid fa-calendar"></i>
-              <div class="tile-label">Visites ce mois-ci</div>
-              <div class="tile-value" id="visits_month">0</div>
-            </div>
-            <div class="dashboard-stat-tile tile3">
-              <i class="fa-solid fa-user"></i>
-              <div class="tile-label">Inscrits</div>
-              <div class="tile-value" id="total-clients">0</div>
-            </div>
-            <div class="dashboard-stat-tile tile4">
-              <i class="fa-solid fa-credit-card"></i>
-              <div class="tile-label">Transactions</div>
-              <div class="tile-value" id="transactions">0</div>
-            </div>
-            <div class="dashboard-stat-tile tile5">
-              <i class="fa-solid fa-euro-sign"></i>
-              <div class="tile-label">Revenus totaux</div>
-              <div class="tile-value" id="total-revenue">0€</div>
-            </div>
-            <div class="dashboard-stat-tile tile6">
-              <i class="fa-solid fa-life-ring"></i>
-              <div class="tile-label">Support</div>
-              <div class="tile-value">Contact</div>
-            </div>
+        <h3><span class="prono-icon">📊</span> Analyse</h3>
+        <div class="dashboard-stats-grid dashboard-stats-grid-responsive">
+          <div class="dashboard-stat-tile tile-visits-today">
+            <div class="tile-icon">👁️</div>
+            <div class="tile-label">Visites aujourd'hui</div>
+            <div class="tile-value" id="visits_today">0</div>
+          </div>
+          <div class="dashboard-stat-tile tile-visits-month">
+            <div class="tile-icon">📅</div>
+            <div class="tile-label">Visites ce mois-ci</div>
+            <div class="tile-value" id="visits_month">0</div>
+          </div>
+          <div class="dashboard-stat-tile tile-users">
+            <div class="tile-icon">👤</div>
+            <div class="tile-label">Inscrits</div>
+            <div class="tile-value" id="total-clients">0</div>
+          </div>
+          <div class="dashboard-stat-tile tile-transactions">
+            <div class="tile-icon">💳</div>
+            <div class="tile-label">Transactions</div>
+            <div class="tile-value" id="transactions">0</div>
+          </div>
+          <div class="dashboard-stat-tile tile-revenue">
+            <div class="tile-icon">💰</div>
+            <div class="tile-label">Revenus totaux</div>
+            <div class="tile-value" id="total-revenue">0€</div>
+          </div>
+        </div>
+        <div class="dashboard-charts-flex">
+          <div class="dashboard-chart-block">
+            <h4>Visites par jour (30 derniers jours)</h4>
+            <canvas id="visitsChart" height="120"></canvas>
+          </div>
+          <div class="dashboard-chart-block">
+            <h4>Statistiques de durée d'abonnement</h4>
+            <canvas id="chart-duration"></canvas>
+          </div>
+          <div class="dashboard-chart-block">
+            <h4>Moyen de paiement utilisé</h4>
+            <canvas id="chart-payment"></canvas>
           </div>
         </div>
       </section>
