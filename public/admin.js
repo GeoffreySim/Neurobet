@@ -72,13 +72,22 @@ document.addEventListener('DOMContentLoaded', function() {
       const pseudo = form.pseudo.value;
       const email = form.email.value;
       const password = form.password.value;
-      const res = await fetch('/admin/api/clients/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pseudo, email, password })
-      });
-      form.reset();
-      renderClients();
+      try {
+        const res = await fetch('/admin/api/clients/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pseudo, email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Erreur lors de l\'ajout');
+        } else {
+          form.reset();
+          renderClients();
+        }
+      } catch (err) {
+        alert('Erreur réseau lors de l\'ajout');
+      }
     };
     return form;
   }
@@ -138,19 +147,31 @@ document.addEventListener('DOMContentLoaded', function() {
         abonnement_actif: form.abonnement_actif.checked
       };
       if (user) {
-        await fetch(`/admin/api/clients/${user.id}/update`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        await fetch(`/admin/api/clients/${user.id}/${data.abonnement_actif ? 'activate' : 'deactivate'}`, { method: 'POST' });
+        try {
+          let res = await fetch(`/admin/api/clients/${user.id}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          let resp = await res.json();
+          if (!res.ok) return alert(resp.error || 'Erreur lors de la modification');
+          res = await fetch(`/admin/api/clients/${user.id}/${data.abonnement_actif ? 'activate' : 'deactivate'}`, { method: 'POST' });
+        } catch (err) {
+          return alert('Erreur réseau lors de la modification');
+        }
       } else {
         data.password = form.password.value;
-        await fetch('/admin/api/clients/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+        try {
+          const res = await fetch('/admin/api/clients/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const resp = await res.json();
+          if (!res.ok) return alert(resp.error || 'Erreur lors de l\'ajout');
+        } catch (err) {
+          return alert('Erreur réseau lors de l\'ajout');
+        }
       }
       modal.remove();
       renderClients();
@@ -158,9 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (user) {
       document.getElementById('delete-user-btn').onclick = async function() {
         if (confirm('Supprimer ce client ?')) {
-          await fetch(`/admin/api/clients/${user.id}/delete`, { method: 'DELETE' });
-          modal.remove();
-          renderClients();
+          try {
+            const res = await fetch(`/admin/api/clients/${user.id}/delete`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) return alert(data.error || 'Erreur lors de la suppression');
+            modal.remove();
+            renderClients();
+          } catch (err) {
+            alert('Erreur réseau lors de la suppression');
+          }
         }
       };
     }
