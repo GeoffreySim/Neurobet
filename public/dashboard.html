@@ -12,6 +12,7 @@
     <div class="dashboard-header">
       <div class="dashboard-header-content">
         <button class="logout-btn" onclick="window.location.href='login.html'" title="Déconnexion">⏻</button>
+        <button id="logout-btn" style="position:absolute;top:18px;right:24px;padding:8px 16px;background:#ff4d4d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Déconnexion</button>
         <img src="/Logo.png" alt="NeuroBet" class="dashboard-header-logo">
         <div class="dashboard-header-title">NeuroBet</div>
       </div>
@@ -51,6 +52,9 @@
     </div>
 
     <div class="dashboard-center">
+      <div id="abo-alert" style="display:none;background:#ffe0e0;color:#b71c1c;padding:18px 24px;border-radius:12px;margin-bottom:24px;text-align:center;font-size:1.1em;">
+        Votre abonnement n'est pas actif. <button id="pay-btn" style="margin-left:12px;padding:8px 18px;background:#1e90ff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Activer mon abonnement</button>
+      </div>
       <section class="pro-card" id="section-accueil" style="display:block;">
         <h3>Bienvenue sur NeuroBet</h3>
         <div class="accueil-content">
@@ -164,5 +168,21 @@
   <script src="dashboard.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script>
+// Vérifie l'état d'abonnement au chargement
+fetch('/me').then(r=>r.json()).then(data => {
+  if (!data.abonnement_actif) {
+    document.getElementById('abo-alert').style.display = '';
+    document.getElementById('pay-btn').onclick = function() {
+      window.location.href = 'payment.html';
+    };
+  }
+});
+document.getElementById('logout-btn').onclick = function() {
+  fetch('/logout', { method: 'POST' }).then(()=>{
+    window.location.href = 'login.html';
+  });
+};
+</script>
 </body>
 </html> 

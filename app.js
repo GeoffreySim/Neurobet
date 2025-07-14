@@ -54,10 +54,17 @@ app.post('/register', async (req, res) => {
     }
     // Hash du mot de passe
     const hash = await bcrypt.hash(password, 10);
-    await pool.query(
-      'INSERT INTO users (pseudo, email, password, date_inscription, abonnement_actif) VALUES ($1, $2, $3, NOW(), false)',
+    const insert = await pool.query(
+      'INSERT INTO users (pseudo, email, password, date_inscription, abonnement_actif) VALUES ($1, $2, $3, NOW(), false) RETURNING id, pseudo, email, abonnement_actif',
       [pseudo, email, hash]
     );
+    // Connexion automatique (création de session)
+    req.session.user = {
+      id: insert.rows[0].id,
+      pseudo: insert.rows[0].pseudo,
+      email: insert.rows[0].email,
+      abonnement_actif: insert.rows[0].abonnement_actif
+    };
     res.json({ success: true });
   } catch (e) {
     console.error('Erreur inscription:', e);
@@ -247,6 +254,34 @@ async function requirePaidUser(req, res, next) {
 // Exemple : protège la page des pronos
 app.get('/pronos', requirePaidUser, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pronos.html'));
+});
+
+// Route protégée pour dashboard
+app.get('/dashboard', (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login.html');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// API pour infos utilisateur connecté
+app.get('/me', (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.json({ logged: false });
+  }
+  res.json({
+    logged: true,
+    pseudo: req.session.user.pseudo,
+    email: req.session.user.email,
+    abonnement_actif: req.session.user.abonnement_actif
+  });
+});
+
+// Déconnexion
+app.post('/logout', (req, res) => {
+  req.session.destroy(()=>{
+    res.json({ success: true });
+  });
 });
 
 // Démarrer le serveur
