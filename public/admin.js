@@ -56,17 +56,46 @@ document.addEventListener('DOMContentLoaded', function() {
   // Par défaut, seule la première section est visible
   sections.forEach((sec, i) => sec.style.display = i === 0 ? 'block' : 'none');
 
+  // Ajout du formulaire d'ajout rapide en haut du tableau Clients
+  function renderAddClientForm() {
+    const form = document.createElement('form');
+    form.innerHTML = `
+      <tr>
+        <td><input type="text" name="pseudo" placeholder="Pseudo" required style="width:90px;"></td>
+        <td><input type="email" name="email" placeholder="Email" required style="width:140px;"></td>
+        <td colspan="2"><input type="password" name="password" placeholder="Mot de passe" required style="width:120px;"></td>
+        <td colspan="3"><button type="submit" style="padding:4px 12px;">Ajouter</button></td>
+      </tr>
+    `;
+    form.onsubmit = async function(e) {
+      e.preventDefault();
+      const pseudo = form.pseudo.value;
+      const email = form.email.value;
+      const password = form.password.value;
+      const res = await fetch('/admin/api/clients/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pseudo, email, password })
+      });
+      form.reset();
+      renderClients();
+    };
+    return form;
+  }
+
   // Affichage des clients inscrits dans l'admin (depuis la base)
   async function renderClients() {
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="7">Chargement...</td></tr>';
+    tbody.innerHTML = '';
+    tbody.appendChild(renderAddClientForm());
     try {
       const res = await fetch('/admin/api/clients');
       const data = await res.json();
-      tbody.innerHTML = '';
       if (!data.clients || data.clients.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">Aucun client inscrit</td></tr>';
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="7">Aucun client inscrit</td>';
+        tbody.appendChild(tr);
         return;
       }
       data.clients.forEach(client => {
@@ -79,11 +108,44 @@ document.addEventListener('DOMContentLoaded', function() {
           <td>${client.abonnement_debut ? new Date(client.abonnement_debut).toLocaleDateString() : '-'}</td>
           <td>${client.abonnement_fin ? new Date(client.abonnement_fin).toLocaleDateString() : (client.abonnement_type === 'lifetime' ? 'À vie' : '-')}</td>
           <td>${client.date_inscription ? new Date(client.date_inscription).toLocaleDateString() : '-'}</td>
+          <td>
+            <button class="btn-activer" title="Activer/Désactiver" style="margin-right:4px;">${client.abonnement_actif ? '⏸️' : '▶️'}</button>
+            <button class="btn-modifier" title="Modifier" style="margin-right:4px;">✏️</button>
+            <button class="btn-supprimer" title="Supprimer">🗑️</button>
+          </td>
         `;
+        // Activer/Désactiver
+        tr.querySelector('.btn-activer').onclick = async function() {
+          await fetch(`/admin/api/clients/${client.id}/${client.abonnement_actif ? 'deactivate' : 'activate'}`, { method: 'POST' });
+          renderClients();
+        };
+        // Modifier
+        tr.querySelector('.btn-modifier').onclick = async function() {
+          const type = prompt('Type abonnement (weekly, monthly, yearly, lifetime) :', client.abonnement_type || '');
+          if (!type) return;
+          let debut = prompt('Date début (YYYY-MM-DD) :', client.abonnement_debut ? client.abonnement_debut.substr(0,10) : '');
+          let fin = prompt('Date fin (YYYY-MM-DD, vide pour lifetime) :', client.abonnement_fin ? client.abonnement_fin.substr(0,10) : '');
+          if (type === 'lifetime') fin = '';
+          await fetch(`/admin/api/clients/${client.id}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ abonnement_type: type, abonnement_debut: debut || null, abonnement_fin: fin || null })
+          });
+          renderClients();
+        };
+        // Supprimer
+        tr.querySelector('.btn-supprimer').onclick = async function() {
+          if (confirm('Supprimer ce client ?')) {
+            await fetch(`/admin/api/clients/${client.id}/delete`, { method: 'DELETE' });
+            renderClients();
+          }
+        };
         tbody.appendChild(tr);
       });
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="7">Erreur chargement clients</td></tr>';
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="7">Erreur chargement clients</td>';
+      tbody.appendChild(tr);
     }
   }
   // Appel lors du clic sur l'onglet clients
