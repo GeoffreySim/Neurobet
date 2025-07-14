@@ -21,10 +21,10 @@
   <div class="container">
     <h2>Statistiques du site</h2>
     <ul>
-      <li>Visites aujourd'hui : <span id="visits_today">...</span></li>
-      <li>Visites ce mois-ci : <span id="visits_month">...</span></li>
-      <li>Nombre d'inscriptions : <span id="users">...</span></li>
-      <li>Nombre de transactions : <span id="transactions">...</span></li>
+      <li>Visites aujourd'hui : <span id="visits_today">0</span></li>
+      <li>Visites ce mois-ci : <span id="visits_month">0</span></li>
+      <li>Nombre d'inscriptions : <span id="users">0</span></li>
+      <li>Nombre de transactions : <span id="transactions">0</span></li>
     </ul>
     <h3>Visites par jour (30 derniers jours)</h3>
     <div id="bar-chart" class="bar-chart"></div>
@@ -39,10 +39,10 @@
     fetch('/admin/api/stats')
       .then(res => res.json())
       .then(data => {
-        document.getElementById('visits_today').textContent = data.visits_today;
-        document.getElementById('visits_month').textContent = data.visits_month;
-        document.getElementById('users').textContent = data.users;
-        document.getElementById('transactions').textContent = data.transactions;
+        document.getElementById('visits_today').textContent = data.visits_today || '0';
+        document.getElementById('visits_month').textContent = data.visits_month || '0';
+        document.getElementById('users').textContent = data.users || '0';
+        document.getElementById('transactions').textContent = data.transactions || '0';
         let tbody = document.getElementById('visits_by_day');
         let barChart = document.getElementById('bar-chart');
         tbody.innerHTML = '';
@@ -51,13 +51,11 @@
           tbody.innerHTML = '<tr><td colspan="2" class="nodata">Aucune donnée</td></tr>';
           barChart.innerHTML = '<div class="nodata">Aucune donnée à afficher</div>';
         } else {
-          // Tableau
           let max = Math.max(...data.visits_by_day.map(r => +r.count));
           data.visits_by_day.forEach(row => {
             let tr = document.createElement('tr');
             tr.innerHTML = `<td>${row.day}</td><td>${row.count}</td>`;
             tbody.appendChild(tr);
-            // Bar chart
             let bar = document.createElement('div');
             bar.className = 'bar';
             bar.style.width = (max ? (row.count / max * 100) : 0) + '%';
