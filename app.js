@@ -42,8 +42,10 @@ app.use('/api/payment', paymentRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 // Rediriger / vers index.html
 app.get('/', async (req, res) => {
+  console.log('Route / appelée');
   try {
     await pool.query('INSERT INTO site_visits DEFAULT VALUES');
+    console.log('Visite insérée');
   } catch (e) {
     console.error('Erreur enregistrement visite:', e);
   }
