@@ -516,43 +516,60 @@ async function loadAdminStats() {
   try {
     const res = await fetch('/admin/api/stats');
     const data = await res.json();
-    document.getElementById('visits_today').textContent = data.visits_today || '0';
-    document.getElementById('visits_month').textContent = data.visits_month || '0';
-    document.getElementById('transactions').textContent = data.transactions || '0';
-    document.getElementById('total-clients').textContent = data.users || '0';
+    
+    // Vérifier que les éléments existent avant de les modifier
+    const visitsTodayEl = document.getElementById('visits_today');
+    const visitsMonthEl = document.getElementById('visits_month');
+    const transactionsEl = document.getElementById('transactions');
+    const totalClientsEl = document.getElementById('total-clients');
+    const visitsChartEl = document.getElementById('visitsChart');
+    
+    if (visitsTodayEl) visitsTodayEl.textContent = data.visits_today || '0';
+    if (visitsMonthEl) visitsMonthEl.textContent = data.visits_month || '0';
+    if (transactionsEl) transactionsEl.textContent = data.transactions || '0';
+    if (totalClientsEl) totalClientsEl.textContent = data.users || '0';
+    
     // Bar chart Chart.js
-    if (window.visitsChartInstance) window.visitsChartInstance.destroy();
-    const ctx = document.getElementById('visitsChart').getContext('2d');
-    const labels = (data.visits_by_day||[]).map(row => row.day);
-    const values = (data.visits_by_day||[]).map(row => +row.count);
-    window.visitsChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels.reverse(),
-        datasets: [{
-          label: 'Visites',
-          data: values.reverse(),
-          backgroundColor: '#1e90ff',
-          borderRadius: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: { display: false }
+    if (visitsChartEl) {
+      if (window.visitsChartInstance) window.visitsChartInstance.destroy();
+      const ctx = visitsChartEl.getContext('2d');
+      const labels = (data.visits_by_day||[]).map(row => row.day);
+      const values = (data.visits_by_day||[]).map(row => +row.count);
+      window.visitsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.reverse(),
+          datasets: [{
+            label: 'Visites',
+            data: values.reverse(),
+            backgroundColor: '#1e90ff',
+            borderRadius: 8,
+          }]
         },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#fff' } },
-          y: { grid: { color: '#333' }, ticks: { color: '#fff', beginAtZero: true } }
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#fff' } },
+            y: { grid: { color: '#333' }, ticks: { color: '#fff', beginAtZero: true } }
+          }
         }
-      }
-    });
+      });
+    }
   } catch (e) {
-    document.getElementById('visits_today').textContent = 'Erreur';
-    document.getElementById('visits_month').textContent = 'Erreur';
-    document.getElementById('transactions').textContent = 'Erreur';
-    document.getElementById('total-clients').textContent = 'Erreur';
+    console.error('Erreur loadAdminStats:', e);
+    const visitsTodayEl = document.getElementById('visits_today');
+    const visitsMonthEl = document.getElementById('visits_month');
+    const transactionsEl = document.getElementById('transactions');
+    const totalClientsEl = document.getElementById('total-clients');
+    
+    if (visitsTodayEl) visitsTodayEl.textContent = 'Erreur';
+    if (visitsMonthEl) visitsMonthEl.textContent = 'Erreur';
+    if (transactionsEl) transactionsEl.textContent = 'Erreur';
+    if (totalClientsEl) totalClientsEl.textContent = 'Erreur';
   }
 }
 
@@ -560,11 +577,19 @@ async function loadRevenusStats() {
   try {
     const res = await fetch('/admin/api/revenus');
     const data = await res.json();
-    document.getElementById('revenus-transactions').textContent = data.transactions || '0';
-    document.getElementById('revenus-total').textContent = (data.total_revenue || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    
+    const revenusTransactionsEl = document.getElementById('revenus-transactions');
+    const revenusTotalEl = document.getElementById('revenus-total');
+    
+    if (revenusTransactionsEl) revenusTransactionsEl.textContent = data.transactions || '0';
+    if (revenusTotalEl) revenusTotalEl.textContent = (data.total_revenue || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
   } catch (e) {
-    document.getElementById('revenus-transactions').textContent = 'Erreur';
-    document.getElementById('revenus-total').textContent = 'Erreur';
+    console.error('Erreur loadRevenusStats:', e);
+    const revenusTransactionsEl = document.getElementById('revenus-transactions');
+    const revenusTotalEl = document.getElementById('revenus-total');
+    
+    if (revenusTransactionsEl) revenusTransactionsEl.textContent = 'Erreur';
+    if (revenusTotalEl) revenusTotalEl.textContent = 'Erreur';
   }
 }
 
