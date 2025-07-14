@@ -344,40 +344,40 @@ async function loadAdminStats() {
     document.getElementById('visits_today').textContent = data.visits_today || '0';
     document.getElementById('visits_month').textContent = data.visits_month || '0';
     document.getElementById('transactions').textContent = data.transactions || '0';
-    // Pour les clients inscrits
     document.getElementById('total-clients').textContent = data.users || '0';
-    // Bar chart et tableau
-    let tbody = document.getElementById('visits_by_day');
-    let barChart = document.getElementById('bar-chart');
-    if (tbody && barChart) {
-      tbody.innerHTML = '';
-      barChart.innerHTML = '';
-      if (!data.visits_by_day || data.visits_by_day.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" class="nodata">Aucune donnée</td></tr>';
-        barChart.innerHTML = '<div class="nodata">Aucune donnée à afficher</div>';
-      } else {
-        let max = Math.max(...data.visits_by_day.map(r => +r.count));
-        data.visits_by_day.forEach(row => {
-          let tr = document.createElement('tr');
-          tr.innerHTML = `<td>${row.day}</td><td>${row.count}</td>`;
-          tbody.appendChild(tr);
-          let bar = document.createElement('div');
-          bar.className = 'bar';
-          bar.style.width = (max ? (row.count / max * 100) : 0) + '%';
-          bar.textContent = `${row.day} : ${row.count}`;
-          barChart.appendChild(bar);
-        });
+    // Bar chart Chart.js
+    if (window.visitsChartInstance) window.visitsChartInstance.destroy();
+    const ctx = document.getElementById('visitsChart').getContext('2d');
+    const labels = (data.visits_by_day||[]).map(row => row.day);
+    const values = (data.visits_by_day||[]).map(row => +row.count);
+    window.visitsChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels.reverse(),
+        datasets: [{
+          label: 'Visites',
+          data: values.reverse(),
+          backgroundColor: '#1e90ff',
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: false }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#fff' } },
+          y: { grid: { color: '#333' }, ticks: { color: '#fff', beginAtZero: true } }
+        }
       }
-    }
+    });
   } catch (e) {
     document.getElementById('visits_today').textContent = 'Erreur';
     document.getElementById('visits_month').textContent = 'Erreur';
     document.getElementById('transactions').textContent = 'Erreur';
     document.getElementById('total-clients').textContent = 'Erreur';
-    let tbody = document.getElementById('visits_by_day');
-    let barChart = document.getElementById('bar-chart');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="2" class="nodata">Erreur</td></tr>';
-    if (barChart) barChart.innerHTML = '<div class="nodata">Erreur lors du chargement des statistiques</div>';
   }
 }
 
