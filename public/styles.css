@@ -2161,6 +2161,14 @@ label {
 .user-modal-content input[type="email"],
 .user-modal-content input[type="password"],
 .user-modal-content input[type="date"],
+.user-modal-content select,
+.user-modal-content textarea {
+  color: #1e293b;
+}
+.user-modal-content input[type="text"],
+.user-modal-content input[type="email"],
+.user-modal-content input[type="password"],
+.user-modal-content input[type="date"],
 .user-modal-content select {
   padding: 8px 12px;
   border-radius: 7px;
