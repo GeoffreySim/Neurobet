@@ -45,9 +45,19 @@ app.get('/', async (req, res) => {
   try {
     await pool.query('INSERT INTO site_visits DEFAULT VALUES');
   } catch (e) {
-    console.error('Erreur enregistrement visite:', e.message);
+    console.error('Erreur enregistrement visite:', e);
   }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Route de test pour vérifier la connexion à la base
+app.get('/test-db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ success: true, now: result.rows[0].now });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
 });
 
 app.use(session({
