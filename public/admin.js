@@ -616,6 +616,199 @@ async function loadDetailedRevenusStats() {
     
     // Graphique d'évolution des revenus
     const revenusChartEl = document.getElementById('revenus-chart');
+    if (revenusChartEl) {
+      if (window.revenusChart) window.revenusChart.destroy();
+      
+      if (data.evolution && data.evolution.length > 0) {
+        const labels = data.evolution.map(row => new Date(row.day).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }));
+        const values = data.evolution.map(row => parseFloat(row.revenue));
+        
+        window.revenusChart = new Chart(revenusChartEl, {
+          type: 'line',
+          data: {
+            labels: labels.reverse(),
+            datasets: [{
+              label: 'Revenus (€)',
+              data: values.reverse(),
+              borderColor: '#2de1c2',
+              backgroundColor: 'rgba(45, 225, 194, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              title: { display: false }
+            },
+            scales: {
+              x: { 
+                grid: { display: false }, 
+                ticks: { color: '#fff', maxRotation: 45 } 
+              },
+              y: { 
+                grid: { color: '#333' }, 
+                ticks: { color: '#fff', beginAtZero: true } 
+              }
+            }
+          }
+        });
+      } else {
+        // Afficher un message si pas de données
+        const ctx = revenusChartEl.getContext('2d');
+        ctx.fillStyle = '#666';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Aucune donnée disponible', revenusChartEl.width / 2, revenusChartEl.height / 2);
+      }
+    }
+    
+    // Graphique de répartition par moyen de paiement
+    const paymentMethodsChartEl = document.getElementById('payment-methods-chart');
+    if (paymentMethodsChartEl) {
+      if (window.paymentMethodsChart) window.paymentMethodsChart.destroy();
+      
+      if (data.payment_methods && data.payment_methods.length > 0 && data.payment_methods.some(pm => parseFloat(pm.total) > 0)) {
+        const labels = data.payment_methods.map(row => row.payment_method);
+        const values = data.payment_methods.map(row => parseFloat(row.total));
+        const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+        
+        window.paymentMethodsChart = new Chart(paymentMethodsChartEl, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: colors,
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { 
+                position: 'bottom',
+                labels: { color: '#fff', font: { size: 12 } }
+              },
+              datalabels: {
+                color: '#fff',
+                font: { weight: 'bold', size: 14 },
+                formatter: function(value, context) {
+                  const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                  if (!total || value === 0) return '';
+                  return Math.round(100 * value / total) + '%';
+                }
+              }
+            }
+          },
+          plugins: [ChartDataLabels]
+        });
+      } else {
+        // Afficher un message si pas de données
+        const ctx = paymentMethodsChartEl.getContext('2d');
+        ctx.fillStyle = '#666';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Aucune donnée disponible', paymentMethodsChartEl.width / 2, paymentMethodsChartEl.height / 2);
+      }
+    }
+    
+    // Tableau des transactions
+    const transactionsTableBody = document.getElementById('transactions-table-body');
+    if (transactionsTableBody) {
+      transactionsTableBody.innerHTML = '';
+      
+      if (data.transactions && data.transactions.length > 0) {
+        data.transactions.forEach(transaction => {
+          const tr = document.createElement('tr');
+          const date = new Date(transaction.date_transaction).toLocaleDateString('fr-FR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          tr.innerHTML = `
+            <td>${date}</td>
+            <td>${transaction.pseudo || 'Anonyme'}</td>
+            <td style="color: #2de1c2; font-weight: bold;">${parseFloat(transaction.montant).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+            <td>${transaction.type || 'Non spécifié'}</td>
+            <td>${transaction.type || 'Standard'}</td>
+            <td style="font-family: monospace; font-size: 0.8em;">${transaction.payment_id || 'N/A'}</td>
+          `;
+          transactionsTableBody.appendChild(tr);
+        });
+      } else {
+        // Afficher un message si pas de transactions
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" style="text-align: center; color: #666; padding: 32px;">Aucune transaction enregistrée</td>';
+        transactionsTableBody.appendChild(tr);
+      }
+    }
+    
+  } catch (e) {
+    console.error('Erreur loadDetailedRevenusStats:', e);
+    // Afficher des erreurs dans les éléments
+    const elements = ['revenus-today', 'revenus-week', 'revenus-month', 'revenus-year'];
+    elements.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Erreur';
+    });
+  }
+}
+
+// Charger les stats revenus lors de l'affichage de la section revenus
+const revenusSidebar = document.querySelector('.sidebar-link[data-section="revenus"]');
+if (revenusSidebar) {
+  revenusSidebar.addEventListener('click', function() {
+    loadRevenusStats();
+    loadDetailedRevenusStats();
+    // Affiche la section revenus, masque les autres
+    document.querySelectorAll('.pro-card').forEach(sec => sec.style.display = 'none');
+    const section = document.getElementById('section-revenus');
+    if (section) section.style.display = 'block';
+  });
+}
+
+// Gestion des filtres de période pour les revenus
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtns = document.querySelectorAll('.filter-btn:not(.demo-btn)');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Retirer la classe active de tous les boutons
+      filterBtns.forEach(b => b.classList.remove('active'));
+      // Ajouter la classe active au bouton cliqué
+      this.classList.add('active');
+      
+      // Ici on pourrait ajouter une logique pour filtrer les données selon la période
+      // Pour l'instant, on recharge toutes les données
+      loadDetailedRevenusStats();
+    });
+  });
+});
+
+// Fonction pour charger les données de démo
+async function loadDemoData() {
+  try {
+    const res = await fetch('/admin/api/revenus/detailed?demo=true');
+    const data = await res.json();
+    
+    // Mise à jour des statistiques par période
+    const todayEl = document.getElementById('revenus-today');
+    const weekEl = document.getElementById('revenus-week');
+    const monthEl = document.getElementById('revenus-month');
+    const yearEl = document.getElementById('revenus-year');
+    
+    if (todayEl) todayEl.textContent = data.periods.today.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    if (weekEl) weekEl.textContent = data.periods.week.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    if (monthEl) monthEl.textContent = data.periods.month.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    if (yearEl) yearEl.textContent = data.periods.year.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    
+    // Graphique d'évolution des revenus
+    const revenusChartEl = document.getElementById('revenus-chart');
     if (revenusChartEl && data.evolution) {
       if (window.revenusChart) window.revenusChart.destroy();
       
@@ -725,45 +918,9 @@ async function loadDetailedRevenusStats() {
     }
     
   } catch (e) {
-    console.error('Erreur loadDetailedRevenusStats:', e);
-    // Afficher des erreurs dans les éléments
-    const elements = ['revenus-today', 'revenus-week', 'revenus-month', 'revenus-year'];
-    elements.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = 'Erreur';
-    });
+    console.error('Erreur loadDemoData:', e);
   }
 }
-
-// Charger les stats revenus lors de l'affichage de la section revenus
-const revenusSidebar = document.querySelector('.sidebar-link[data-section="revenus"]');
-if (revenusSidebar) {
-  revenusSidebar.addEventListener('click', function() {
-    loadRevenusStats();
-    loadDetailedRevenusStats();
-    // Affiche la section revenus, masque les autres
-    document.querySelectorAll('.pro-card').forEach(sec => sec.style.display = 'none');
-    const section = document.getElementById('section-revenus');
-    if (section) section.style.display = 'block';
-  });
-}
-
-// Gestion des filtres de période pour les revenus
-document.addEventListener('DOMContentLoaded', function() {
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Retirer la classe active de tous les boutons
-      filterBtns.forEach(b => b.classList.remove('active'));
-      // Ajouter la classe active au bouton cliqué
-      this.classList.add('active');
-      
-      // Ici on pourrait ajouter une logique pour filtrer les données selon la période
-      // Pour l'instant, on recharge toutes les données
-      loadDetailedRevenusStats();
-    });
-  });
-});
 // Charger les stats revenus lors de l'affichage de la section analyse
 const analyseSidebar = document.querySelector('.sidebar-link[data-section="analyse"]');
 if (analyseSidebar) {
