@@ -83,18 +83,93 @@ document.addEventListener('DOMContentLoaded', function() {
     return form;
   }
 
+  // Pop-up de modification/ajout utilisateur
+  function showUserPopup(user) {
+    // Création de la modale
+    let modal = document.getElementById('user-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'user-modal';
+      modal.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div style="background:#fff;padding:32px 28px;border-radius:16px;min-width:320px;max-width:95vw;box-shadow:0 8px 32px #0002;position:relative;">
+        <button id="close-user-modal" style="position:absolute;top:12px;right:18px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
+        <h3 style="margin-bottom:18px;">${user ? 'Modifier' : 'Ajouter'} un client</h3>
+        <form id="user-form">
+          <label>Pseudo<br><input type="text" name="pseudo" value="${user?.pseudo||''}" required></label><br><br>
+          <label>Email<br><input type="email" name="email" value="${user?.email||''}" required></label><br><br>
+          <label>Type abonnement<br><input type="text" name="abonnement_type" value="${user?.abonnement_type||''}" placeholder="weekly, monthly, yearly, lifetime"></label><br><br>
+          <label>Date début<br><input type="date" name="abonnement_debut" value="${user?.abonnement_debut ? user.abonnement_debut.substr(0,10) : ''}"></label><br><br>
+          <label>Date fin<br><input type="date" name="abonnement_fin" value="${user?.abonnement_fin ? user.abonnement_fin.substr(0,10) : ''}"></label><br><br>
+          <label>Actif <input type="checkbox" name="abonnement_actif" ${user?.abonnement_actif ? 'checked' : ''}></label><br><br>
+          ${user ? '' : '<label>Mot de passe<br><input type="password" name="password" required></label><br><br>'}
+          <button type="submit" style="padding:8px 18px;">Enregistrer</button>
+          ${user ? '<button type="button" id="delete-user-btn" style="margin-left:18px;padding:8px 18px;background:#ff4d4d;color:#fff;border:none;border-radius:6px;cursor:pointer;">Supprimer</button>' : ''}
+        </form>
+      </div>
+    `;
+    document.getElementById('close-user-modal').onclick = () => { modal.remove(); };
+    // Soumission du formulaire
+    document.getElementById('user-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        pseudo: form.pseudo.value,
+        email: form.email.value,
+        abonnement_type: form.abonnement_type.value,
+        abonnement_debut: form.abonnement_debut.value || null,
+        abonnement_fin: form.abonnement_fin.value || null,
+        abonnement_actif: form.abonnement_actif.checked
+      };
+      if (user) {
+        await fetch(`/admin/api/clients/${user.id}/update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        // Activation/désactivation
+        await fetch(`/admin/api/clients/${user.id}/${data.abonnement_actif ? 'activate' : 'deactivate'}`, { method: 'POST' });
+      } else {
+        data.password = form.password.value;
+        await fetch('/admin/api/clients/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+      }
+      modal.remove();
+      renderClients();
+    };
+    // Suppression
+    if (user) {
+      document.getElementById('delete-user-btn').onclick = async function() {
+        if (confirm('Supprimer ce client ?')) {
+          await fetch(`/admin/api/clients/${user.id}/delete`, { method: 'DELETE' });
+          modal.remove();
+          renderClients();
+        }
+      };
+    }
+  }
+
   // Affichage des clients inscrits dans l'admin (depuis la base)
   async function renderClients() {
     const tbody = document.getElementById('clientsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    tbody.appendChild(renderAddClientForm());
+    // Bouton d'ajout
+    const addBtnTr = document.createElement('tr');
+    addBtnTr.innerHTML = `<td colspan="8"><button id="add-client-btn" style="padding:6px 18px;">+ Ajouter un client</button></td>`;
+    tbody.appendChild(addBtnTr);
+    document.getElementById('add-client-btn').onclick = () => showUserPopup(null);
     try {
       const res = await fetch('/admin/api/clients');
       const data = await res.json();
       if (!data.clients || data.clients.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="7">Aucun client inscrit</td>';
+        tr.innerHTML = '<td colspan="8">Aucun client inscrit</td>';
         tbody.appendChild(tr);
         return;
       }
@@ -108,43 +183,14 @@ document.addEventListener('DOMContentLoaded', function() {
           <td>${client.abonnement_debut ? new Date(client.abonnement_debut).toLocaleDateString() : '-'}</td>
           <td>${client.abonnement_fin ? new Date(client.abonnement_fin).toLocaleDateString() : (client.abonnement_type === 'lifetime' ? 'À vie' : '-')}</td>
           <td>${client.date_inscription ? new Date(client.date_inscription).toLocaleDateString() : '-'}</td>
-          <td>
-            <button class="btn-activer" title="Activer/Désactiver" style="margin-right:4px;">${client.abonnement_actif ? '⏸️' : '▶️'}</button>
-            <button class="btn-modifier" title="Modifier" style="margin-right:4px;">✏️</button>
-            <button class="btn-supprimer" title="Supprimer">🗑️</button>
-          </td>
+          <td><button class="btn-edit-user">Modifier</button></td>
         `;
-        // Activer/Désactiver
-        tr.querySelector('.btn-activer').onclick = async function() {
-          await fetch(`/admin/api/clients/${client.id}/${client.abonnement_actif ? 'deactivate' : 'activate'}`, { method: 'POST' });
-          renderClients();
-        };
-        // Modifier
-        tr.querySelector('.btn-modifier').onclick = async function() {
-          const type = prompt('Type abonnement (weekly, monthly, yearly, lifetime) :', client.abonnement_type || '');
-          if (!type) return;
-          let debut = prompt('Date début (YYYY-MM-DD) :', client.abonnement_debut ? client.abonnement_debut.substr(0,10) : '');
-          let fin = prompt('Date fin (YYYY-MM-DD, vide pour lifetime) :', client.abonnement_fin ? client.abonnement_fin.substr(0,10) : '');
-          if (type === 'lifetime') fin = '';
-          await fetch(`/admin/api/clients/${client.id}/update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ abonnement_type: type, abonnement_debut: debut || null, abonnement_fin: fin || null })
-          });
-          renderClients();
-        };
-        // Supprimer
-        tr.querySelector('.btn-supprimer').onclick = async function() {
-          if (confirm('Supprimer ce client ?')) {
-            await fetch(`/admin/api/clients/${client.id}/delete`, { method: 'DELETE' });
-            renderClients();
-          }
-        };
+        tr.querySelector('.btn-edit-user').onclick = () => showUserPopup(client);
         tbody.appendChild(tr);
       });
     } catch (e) {
       const tr = document.createElement('tr');
-      tr.innerHTML = '<td colspan="7">Erreur chargement clients</td>';
+      tr.innerHTML = '<td colspan="8">Erreur chargement clients</td>';
       tbody.appendChild(tr);
     }
   }
