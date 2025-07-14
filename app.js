@@ -241,7 +241,7 @@ async function requirePaidUser(req, res, next) {
     ) {
       return next();
     }
-    // Si expiré, on désactive l'abonnement
+    // Si expiré ou inactif, on désactive l'abonnement et redirige
     await pool.query(
       'UPDATE users SET abonnement_actif = false WHERE email = $1',
       [req.session.user.email]
@@ -249,7 +249,7 @@ async function requirePaidUser(req, res, next) {
   } catch (e) {
     console.error('Erreur vérification abonnement:', e);
   }
-  res.redirect('/payment.html');
+  res.redirect('/dashboard');
 }
 
 // Exemple : protège la page des pronos
@@ -265,17 +265,27 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// API pour infos utilisateur connecté
-app.get('/me', (req, res) => {
+// API pour infos utilisateur connecté (complétée pour Mon Compte)
+app.get('/me', async (req, res) => {
   if (!req.session || !req.session.user) {
     return res.json({ logged: false });
   }
-  res.json({
-    logged: true,
-    pseudo: req.session.user.pseudo,
-    email: req.session.user.email,
-    abonnement_actif: req.session.user.abonnement_actif
-  });
+  // Récupère les infos complètes en base
+  try {
+    const result = await pool.query('SELECT pseudo, email, abonnement_actif, abonnement_type, abonnement_debut, abonnement_fin FROM users WHERE id = $1', [req.session.user.id]);
+    const user = result.rows[0];
+    res.json({
+      logged: true,
+      pseudo: user.pseudo,
+      email: user.email,
+      abonnement_actif: user.abonnement_actif,
+      abonnement_type: user.abonnement_type,
+      abonnement_debut: user.abonnement_debut,
+      abonnement_fin: user.abonnement_fin
+    });
+  } catch (e) {
+    res.json({ logged: true, ...req.session.user });
+  }
 });
 
 // Déconnexion

@@ -11,8 +11,7 @@
   <div class="dashboard-pro-main">
     <div class="dashboard-header">
       <div class="dashboard-header-content">
-        <button class="logout-btn" onclick="window.location.href='login.html'" title="Déconnexion">⏻</button>
-        <button id="logout-btn" style="position:absolute;top:18px;right:24px;padding:8px 16px;background:#ff4d4d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Déconnexion</button>
+        <button class="logout-btn" id="logout-btn" title="Déconnexion" style="position:absolute;top:18px;right:24px;padding:8px 16px;background:#ff4d4d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:1.5em;">⏻</button>
         <img src="/Logo.png" alt="NeuroBet" class="dashboard-header-logo">
         <div class="dashboard-header-title">NeuroBet</div>
       </div>
@@ -44,9 +43,9 @@
           <span class="sidebar-icon">📊</span>
           <span class="sidebar-label">Historique</span>
         </li>
-        <li class="sidebar-link" data-section="compte">
+        <li class="sidebar-link" data-section="mon-compte">
           <span class="sidebar-icon">👤</span>
-          <span class="sidebar-label">Mon compte</span>
+          <span class="sidebar-label">Mon Compte</span>
         </li>
       </ul>
     </div>
@@ -63,46 +62,14 @@
           <button class="btn-abonnement" onclick="showLastProno()">Voir le paris du jour</button>
         </div>
       </section>
-      <section class="pro-card" id="section-compte" style="display:none;">
-        <h3><span class="prono-icon">👤</span> Mon compte</h3>
-        <div class="account-info">
-          <div class="account-section">
-            <h4>Informations personnelles</h4>
-            <div class="info-row">
-              <span class="info-label">Email :</span>
-              <span class="info-value" id="user-email">user@email.com</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Pseudo :</span>
-              <span class="info-value" id="user-pseudo">Utilisateur</span>
-            </div>
-          </div>
-          
-          <div class="account-section">
-            <h4>Abonnement</h4>
-            <div class="info-row">
-              <span class="info-label">Statut :</span>
-              <span class="abo-status" id="abo-status">Actif</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Type :</span>
-              <span class="info-value" id="abo-type">Mensuel</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Début :</span>
-              <span class="info-value" id="abo-start">01/01/2024</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Fin :</span>
-              <span class="info-value" id="abo-end">01/02/2024</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Durée restante :</span>
-              <span class="info-value highlight" id="abo-remaining">30 jours</span>
-            </div>
-          </div>
+      <!-- Section Mon Compte -->
+      <section class="pro-card" id="section-mon-compte" style="display:none;">
+        <h3>Mon Compte</h3>
+        <div id="compte-infos">
+          <p><strong>Email :</strong> <span id="compte-email"></span></p>
+          <p><strong>Abonnement :</strong> <span id="compte-abonnement"></span></p>
+          <p id="compte-dates"></p>
         </div>
-        <button class="btn-abonnement" onclick="window.open('payment.html', '_blank')">Payer / Renouveler</button>
       </section>
       <section class="pro-card" id="section-stats" style="display:none;">
         <h3><span class="prono-icon">📈</span> Statistiques</h3>
@@ -183,6 +150,48 @@ document.getElementById('logout-btn').onclick = function() {
     window.location.href = 'login.html';
   });
 };
+// Affichage dynamique des infos Mon Compte
+fetch('/me').then(r=>r.json()).then(data => {
+  if (data.logged) {
+    document.getElementById('compte-email').textContent = data.email;
+    if (data.abonnement_actif) {
+      document.getElementById('compte-abonnement').textContent = 'actif';
+      document.getElementById('compte-abonnement').style.color = '#388e3c';
+      if (data.abonnement_type && data.abonnement_type !== 'lifetime') {
+        document.getElementById('compte-dates').textContent = 'Valide jusqu\'au ' + (data.abonnement_fin ? new Date(data.abonnement_fin).toLocaleDateString() : 'inconnu');
+      } else if (data.abonnement_type === 'lifetime') {
+        document.getElementById('compte-dates').textContent = 'Abonnement à vie';
+      } else {
+        document.getElementById('compte-dates').textContent = '';
+      }
+    } else {
+      document.getElementById('compte-abonnement').textContent = 'inactif';
+      document.getElementById('compte-abonnement').style.color = '#b71c1c';
+      document.getElementById('compte-dates').textContent = '';
+    }
+  }
+});
+// Masque la section pronos si abonnement inactif
+fetch('/me').then(r=>r.json()).then(data => {
+  if (!data.abonnement_actif) {
+    var pronoSection = document.getElementById('section-pronos');
+    if (pronoSection) {
+      pronoSection.style.display = 'none';
+    }
+  }
+});
+// Navigation sidebar admin (ajout Mon Compte)
+document.querySelectorAll('.sidebar-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    // Masquer toutes les sections
+    document.querySelectorAll('.pro-card').forEach(sec => sec.style.display = 'none');
+    // Afficher la bonne section
+    const section = document.getElementById('section-' + link.dataset.section);
+    if (section) section.style.display = 'block';
+  });
+});
 </script>
 </body>
 </html> 
