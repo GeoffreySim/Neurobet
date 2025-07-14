@@ -2128,3 +2128,130 @@ label {
   background: linear-gradient(90deg,#e0e0e0 60%,#bdbdbd 100%);
   color: #222;
 } 
+/* Pop-up admin user modal */
+.user-modal-content {
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 16px;
+  min-width: 320px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 8px 32px #0002;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: 'Montserrat', sans-serif;
+}
+.user-modal-content h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.3em;
+  text-align: center;
+}
+.user-modal-content label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  margin-bottom: 10px;
+  gap: 4px;
+}
+.user-modal-content input[type="text"],
+.user-modal-content input[type="email"],
+.user-modal-content input[type="password"],
+.user-modal-content input[type="date"] {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  font-size: 1em;
+  font-weight: normal;
+  margin-top: 2px;
+}
+.user-modal-switch {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px;
+  font-weight: normal;
+}
+.user-modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.user-modal-save {
+  background: #1e90ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.user-modal-delete {
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.user-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  font-size: 1.5em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+}
+@media (max-width: 600px) {
+  .user-modal-content {
+    min-width: 0;
+    max-width: 98vw;
+    padding: 18px 6vw 18px 6vw;
+    font-size: 0.98em;
+    overflow-y: auto;
+  }
+}
+
+/* Tableau clients admin */
+.prono-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px #0001;
+}
+.prono-table th, .prono-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+.prono-table th {
+  background: #f7faff;
+  font-weight: bold;
+  color: #1e293b;
+  font-size: 1.05em;
+}
+.prono-table tr:hover {
+  background: #f0f7ff;
+}
+#add-client-btn {
+  background: #1e90ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  margin: 8px 0;
+  padding: 8px 18px;
+  transition: background 0.15s;
+}
+#add-client-btn:hover {
+  background: #1565c0;
+} 

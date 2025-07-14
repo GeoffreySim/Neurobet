@@ -85,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Pop-up de modification/ajout utilisateur
   function showUserPopup(user) {
-    // Création de la modale
     let modal = document.getElementById('user-modal');
     if (!modal) {
       modal = document.createElement('div');
@@ -94,24 +93,25 @@ document.addEventListener('DOMContentLoaded', function() {
       document.body.appendChild(modal);
     }
     modal.innerHTML = `
-      <div style="background:#fff;padding:32px 28px;border-radius:16px;min-width:320px;max-width:95vw;box-shadow:0 8px 32px #0002;position:relative;">
-        <button id="close-user-modal" style="position:absolute;top:12px;right:18px;font-size:1.5em;background:none;border:none;cursor:pointer;">&times;</button>
-        <h3 style="margin-bottom:18px;">${user ? 'Modifier' : 'Ajouter'} un client</h3>
+      <div class="user-modal-content">
+        <button id="close-user-modal" class="user-modal-close">&times;</button>
+        <h3>${user ? 'Modifier' : 'Ajouter'} un client</h3>
         <form id="user-form">
-          <label>Pseudo<br><input type="text" name="pseudo" value="${user?.pseudo||''}" required></label><br><br>
-          <label>Email<br><input type="email" name="email" value="${user?.email||''}" required></label><br><br>
-          <label>Type abonnement<br><input type="text" name="abonnement_type" value="${user?.abonnement_type||''}" placeholder="weekly, monthly, yearly, lifetime"></label><br><br>
-          <label>Date début<br><input type="date" name="abonnement_debut" value="${user?.abonnement_debut ? user.abonnement_debut.substr(0,10) : ''}"></label><br><br>
-          <label>Date fin<br><input type="date" name="abonnement_fin" value="${user?.abonnement_fin ? user.abonnement_fin.substr(0,10) : ''}"></label><br><br>
-          <label>Actif <input type="checkbox" name="abonnement_actif" ${user?.abonnement_actif ? 'checked' : ''}></label><br><br>
-          ${user ? '' : '<label>Mot de passe<br><input type="password" name="password" required></label><br><br>'}
-          <button type="submit" style="padding:8px 18px;">Enregistrer</button>
-          ${user ? '<button type="button" id="delete-user-btn" style="margin-left:18px;padding:8px 18px;background:#ff4d4d;color:#fff;border:none;border-radius:6px;cursor:pointer;">Supprimer</button>' : ''}
+          <label><span>Pseudo</span><input type="text" name="pseudo" value="${user?.pseudo||''}" required></label>
+          <label><span>Email</span><input type="email" name="email" value="${user?.email||''}" required></label>
+          <label><span>Type abonnement</span><input type="text" name="abonnement_type" value="${user?.abonnement_type||''}" placeholder="weekly, monthly, yearly, lifetime"></label>
+          <label><span>Date début</span><input type="date" name="abonnement_debut" value="${user?.abonnement_debut ? user.abonnement_debut.substr(0,10) : ''}"></label>
+          <label><span>Date fin</span><input type="date" name="abonnement_fin" value="${user?.abonnement_fin ? user.abonnement_fin.substr(0,10) : ''}"></label>
+          <label class="user-modal-switch"><span>Actif</span><input type="checkbox" name="abonnement_actif" ${user?.abonnement_actif ? 'checked' : ''}></label>
+          ${user ? '' : '<label><span>Mot de passe</span><input type="password" name="password" required></label>'}
+          <div class="user-modal-actions">
+            <button type="submit" class="user-modal-save">Enregistrer</button>
+            ${user ? '<button type="button" id="delete-user-btn" class="user-modal-delete">Supprimer</button>' : ''}
+          </div>
         </form>
       </div>
     `;
     document.getElementById('close-user-modal').onclick = () => { modal.remove(); };
-    // Soumission du formulaire
     document.getElementById('user-form').onsubmit = async function(e) {
       e.preventDefault();
       const form = e.target;
@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-        // Activation/désactivation
         await fetch(`/admin/api/clients/${user.id}/${data.abonnement_actif ? 'activate' : 'deactivate'}`, { method: 'POST' });
       } else {
         data.password = form.password.value;
@@ -142,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.remove();
       renderClients();
     };
-    // Suppression
     if (user) {
       document.getElementById('delete-user-btn').onclick = async function() {
         if (confirm('Supprimer ce client ?')) {
