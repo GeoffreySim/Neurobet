@@ -228,6 +228,63 @@ app.get('/admin/api/clients', requireAdmin, async (req, res) => {
   }
 });
 
+// Activer un abonnement
+app.post('/admin/api/clients/:id/activate', requireAdmin, async (req, res) => {
+  try {
+    await pool.query("UPDATE users SET abonnement_actif = true WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur activation' });
+  }
+});
+// Désactiver un abonnement
+app.post('/admin/api/clients/:id/deactivate', requireAdmin, async (req, res) => {
+  try {
+    await pool.query("UPDATE users SET abonnement_actif = false WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur désactivation' });
+  }
+});
+// Modifier type/dates d'abonnement
+app.post('/admin/api/clients/:id/update', requireAdmin, async (req, res) => {
+  const { abonnement_type, abonnement_debut, abonnement_fin } = req.body;
+  try {
+    await pool.query(
+      "UPDATE users SET abonnement_type = $1, abonnement_debut = $2, abonnement_fin = $3 WHERE id = $4",
+      [abonnement_type, abonnement_debut, abonnement_fin, req.params.id]
+    );
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur modification' });
+  }
+});
+// Supprimer un utilisateur
+app.delete('/admin/api/clients/:id/delete', requireAdmin, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM users WHERE id = $1", [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur suppression' });
+  }
+});
+// Ajouter un utilisateur
+app.post('/admin/api/clients/add', requireAdmin, async (req, res) => {
+  console.log('ROUTE ADMIN ADD OK', req.body);
+  const { pseudo, email, password } = req.body;
+  if (!pseudo || !email || !password) return res.status(400).json({ error: 'Champs manquants' });
+  try {
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query(
+      'INSERT INTO users (pseudo, email, password, date_inscription, abonnement_actif) VALUES ($1, $2, $3, NOW(), false)',
+      [pseudo, email, hash]
+    );
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur ajout utilisateur' });
+  }
+});
+
 // Middleware pour protéger l'accès aux pronos (clients payants uniquement, durée prise en compte)
 async function requirePaidUser(req, res, next) {
   if (!req.session || !req.session.user || !req.session.user.email) {
