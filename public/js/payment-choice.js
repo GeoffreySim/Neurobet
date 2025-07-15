@@ -59,13 +59,24 @@ document.addEventListener('DOMContentLoaded', function () {
       lifetime: 499
     };
     const amount = prices[plan] || 9;
+    // Récupérer l'email utilisateur (depuis le localStorage ou session)
+    let email = '';
+    try {
+      const user = JSON.parse(localStorage.getItem('neurobet_user'));
+      if (user && user.email) email = user.email;
+    } catch (e) {}
     // Rendre le bouton PayPal
     paypal.Buttons({
       style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' },
       createOrder: function(data, actions) {
-        return actions.order.create({
-          purchase_units: [{ amount: { value: amount.toString(), currency_code: 'EUR' } }]
-        });
+        // On passe l'email et le plan dans custom_id
+        return fetch('/api/paypal/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, plan, email })
+        })
+          .then(res => res.json())
+          .then(data => data.id);
       },
       onApprove: function(data, actions) {
         return actions.order.capture().then(function(details) {

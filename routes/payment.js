@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createCheckoutSession, handleWebhook, verifyWebhookSignature, SUBSCRIPTION_PRICES } = require('../config/stripe');
+const { sendMail } = require('../config/email');
 
 // Route pour créer une session de paiement
 router.post('/create-checkout-session', async (req, res) => {
@@ -70,6 +71,13 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
            )`,
           [email, session.amount_total ? session.amount_total / 100 : 0, session.currency || 'EUR', plan, session.id]
         );
+        // ENVOI EMAIL CONFIRMATION
+        await sendMail({
+          to: email,
+          subject: 'Confirmation de votre abonnement NeuroBet',
+          text: `Bonjour,\nVotre abonnement (${plan}) a bien été activé. Début : ${debut.toLocaleDateString()}. Merci pour votre confiance !`,
+          html: `<p>Bonjour,</p><p>Votre abonnement <b>${plan}</b> a bien été activé.<br>Début : <b>${debut.toLocaleDateString()}</b>.</p><p>Merci pour votre confiance !</p>`
+        });
       } catch (e) {
         console.error('Erreur lors de l’activation abonnement:', e);
       }
@@ -153,6 +161,13 @@ router.post('/webhook-coinbase', express.raw({ type: 'application/json' }), asyn
            )`,
           [email, montant, devise, plan, payment_id]
         );
+        // ENVOI EMAIL CONFIRMATION
+        await sendMail({
+          to: email,
+          subject: 'Confirmation de votre abonnement NeuroBet',
+          text: `Bonjour,\nVotre abonnement (${plan}) a bien été activé. Début : ${debut.toLocaleDateString()}. Merci pour votre confiance !`,
+          html: `<p>Bonjour,</p><p>Votre abonnement <b>${plan}</b> a bien été activé.<br>Début : <b>${debut.toLocaleDateString()}</b>.</p><p>Merci pour votre confiance !</p>`
+        });
         console.log('Abonnement activé et transaction crypto enregistrée pour', email);
       } else {
         console.warn('Email ou plan manquant dans le webhook Coinbase');

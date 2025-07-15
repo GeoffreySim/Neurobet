@@ -6,6 +6,7 @@ const paypalSdk = require('@paypal/checkout-server-sdk');
 const { client: paypalClient } = require('./config/paypal');
 const pool = require('./db');
 const bcrypt = require('bcrypt');
+const { sendMail } = require('./config/email');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +62,85 @@ app.use(express.json());
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 // Routes API paiement
 app.use('/api/payment', paymentRoutes);
+
+// === WEBHOOK PAYPAL ===
+app.post('/api/paypal/webhook', express.json(), async (req, res) => {
+  // Webhook PayPal : https://developer.paypal.com/docs/api/webhooks/v1/
+  // On attend un event PAYMENT.CAPTURE.COMPLETED
+  const event = req.body;
+  if (!event || !event.event_type) {
+    return res.status(400).json({ error: 'Event PayPal invalide' });
+  }
+  if (event.event_type === 'CHECKOUT.ORDER.APPROVED' || event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
+    try {
+      // Récupérer l'ID de la commande ou du paiement
+      const orderId = event.resource && (event.resource.id || event.resource.order_id);
+      // Appel API PayPal pour vérifier la commande
+      const request = new paypalSdk.orders.OrdersGetRequest(orderId);
+      const order = await paypalClient().execute(request);
+      const details = order.result;
+      // Récupérer l'email et le plan depuis la custom_id ou purchase_units
+      let email = null, plan = null, montant = null;
+      if (details && details.purchase_units && details.purchase_units.length > 0) {
+        const custom = details.purchase_units[0].custom_id || '';
+        // custom_id format: email|plan
+        if (custom.includes('|')) {
+          [email, plan] = custom.split('|');
+        }
+        montant = details.purchase_units[0].amount && details.purchase_units[0].amount.value;
+      }
+      if (!email || !plan) {
+        return res.status(400).json({ error: 'Email ou plan manquant dans la commande PayPal' });
+      }
+      // Calcul des dates d'abonnement
+      let debut = new Date();
+      let fin = null;
+      if (plan === 'weekly') {
+        fin = new Date(debut.getTime() + 7 * 24 * 60 * 60 * 1000);
+      } else if (plan === 'monthly') {
+        fin = new Date(debut);
+        fin.setMonth(fin.getMonth() + 1);
+      } else if (plan === 'yearly') {
+        fin = new Date(debut);
+        fin.setFullYear(fin.getFullYear() + 1);
+      } else if (plan === 'lifetime') {
+        fin = null;
+      }
+      // Activer l'abonnement
+      await pool.query(
+        `UPDATE users SET abonnement_actif = true, abonnement_type = $1, abonnement_debut = $2, abonnement_fin = $3 WHERE email = $4`,
+        [plan, debut, fin, email]
+      );
+      // Enregistrer la transaction
+      await pool.query(
+        `INSERT INTO transactions (user_id, email, montant, devise, abonnement_type, payment_method, payment_id, created_at)
+         VALUES (
+           (SELECT id FROM users WHERE email = $1),
+           $1,
+           $2,
+           $3,
+           $4,
+           'paypal',
+           $5,
+           NOW()
+         )`,
+        [email, montant || 0, 'EUR', plan, orderId]
+      );
+      // Envoyer l'email de confirmation
+      await sendMail({
+        to: email,
+        subject: 'Confirmation de votre abonnement NeuroBet',
+        text: `Bonjour,\nVotre abonnement (${plan}) a bien été activé. Début : ${debut.toLocaleDateString()}. Merci pour votre confiance !`,
+        html: `<p>Bonjour,</p><p>Votre abonnement <b>${plan}</b> a bien été activé.<br>Début : <b>${debut.toLocaleDateString()}</b>.</p><p>Merci pour votre confiance !</p>`
+      });
+      return res.json({ success: true });
+    } catch (e) {
+      console.error('Erreur webhook PayPal:', e);
+      return res.status(500).json({ error: 'Erreur traitement PayPal' });
+    }
+  }
+  res.json({ received: true });
+});
 
 // Route d'inscription (API)
 app.post('/register', async (req, res) => {
@@ -180,6 +260,8 @@ app.get('/admin', requireAdmin, (req, res) => {
 });
 
 app.post('/api/paypal/create-order', async (req, res) => {
+  // On attend { amount, plan, email }
+  const { amount, plan, email } = req.body || {};
   const request = new paypalSdk.orders.OrdersCreateRequest();
   request.prefer('return=representation');
   request.requestBody({
@@ -187,8 +269,9 @@ app.post('/api/paypal/create-order', async (req, res) => {
     purchase_units: [{
       amount: {
         currency_code: 'EUR',
-        value: '10.00' // À adapter selon le montant réel
-      }
+        value: (amount || '10.00').toString()
+      },
+      custom_id: email && plan ? `${email}|${plan}` : undefined
     }]
   });
 
